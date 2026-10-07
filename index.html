@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#006B73">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Roadmap IA">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<title>Roadmap Engenharia de IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@500&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: uma linha de metro vertical com seis fases; cada fase abre uma grelha de blocos clicáveis.
+   Tab 2 repete os mesmos blocos agrupados por carreira Alura, com o mesmo estado. */
+:root {
+  --bg: #EDF0F5;
+  --surface: #FFFFFF;
+  --surface-2: #E3E8F0;
+  --ink: #111827;
+  --ink-2: #485467;
+  --line: #C6CEDB;
+  --accent: #006B73;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #D9EEF0;
+  --accent-line: #7DB8BD;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --font-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D131C;
+    --surface: #151D29;
+    --surface-2: #1E2837;
+    --ink: #E8EDF4;
+    --ink-2: #9BA8BB;
+    --line: #2B3749;
+    --accent: #52C4BE;
+    --accent-ink: #06211F;
+    --accent-soft: #123532;
+    --accent-line: #2E7C78;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D131C;
+  --surface: #151D29;
+  --surface-2: #1E2837;
+  --ink: #E8EDF4;
+  --ink-2: #9BA8BB;
+  --line: #2B3749;
+  --accent: #52C4BE;
+  --accent-ink: #06211F;
+  --accent-soft: #123532;
+  --accent-line: #2E7C78;
+  color-scheme: dark;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  -webkit-tap-highlight-color: transparent;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.wrap {
+  max-width: 1080px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 4vw, 32px);
+  padding-block: calc(28px + env(safe-area-inset-top, 0px)) calc(72px + env(safe-area-inset-bottom, 0px));
+}
+.mono { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+/* cabeçalho */
+.eyebrow {
+  font-family: var(--font-mono); font-weight: 500; font-size: 12px;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2);
+}
+h1 {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(32px, 6vw, 52px); line-height: 1.04; letter-spacing: -.01em;
+  margin: 8px 0 0; text-wrap: balance;
+}
+.lede { color: var(--ink-2); max-width: 62ch; margin: 12px 0 0; }
+
+.progress {
+  margin-top: 24px; padding: 16px 18px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  display: grid; gap: 12px;
+}
+.progress-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: baseline; }
+.progress-label { font-weight: 600; }
+.progress-hours { font-size: 13px; color: var(--ink-2); }
+.bar { height: 10px; border-radius: 5px; background: var(--surface-2); overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 5px; transition: width .25s ease; }
+.progress-sub { font-size: 13px; color: var(--ink-2); }
+
+/* barra de controlos */
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; margin-top: 28px; }
+.tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.tabs button {
+  font: inherit; font-weight: 600; font-size: 14px; color: var(--ink);
+  background: transparent; border: 0; padding: 9px 16px; cursor: pointer;
+}
+.tabs button + button { border-left: 1px solid var(--line); }
+.tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+.toggle { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; cursor: pointer; }
+.toggle input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
+button:focus-visible, summary:focus-visible, .toggle input:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+
+/* fases */
+.phases { list-style: none; margin: 30px 0 0; padding: 0; }
+.phase { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: 16px; padding-bottom: 38px; }
+.phase::before { content: ""; position: absolute; left: 16px; top: 36px; bottom: 2px; width: 2px; background: var(--line); }
+.phase:last-child { padding-bottom: 0; }
+.phase:last-child::before { display: none; }
+.marker {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--font-mono); font-weight: 500; font-size: 14px;
+  background: var(--bg); color: var(--ink); border: 2px solid var(--ink-2);
+}
+.phase.is-done .marker { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.phase-body { min-width: 0; }
+.phase-head h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(21px, 3.4vw, 26px); line-height: 1.15; margin: 3px 0 0; text-wrap: balance; }
+.phase-goal { margin: 6px 0 0; color: var(--ink-2); max-width: 64ch; }
+.phase-meta { margin: 8px 0 0; font-size: 12.5px; color: var(--ink-2); }
+.phase-extra { margin: 8px 0 0; font-size: 13px; color: var(--ink-2); max-width: 64ch; }
+.phase-extra a { color: var(--accent); text-underline-offset: 3px; }
+
+/* blocos de curso */
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); gap: 10px; margin-top: 14px; }
+.tile {
+  font: inherit; text-align: left; color: var(--ink);
+  display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; align-items: start;
+  padding: 12px 14px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 8px; cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.tile:hover { border-color: var(--accent); }
+.check {
+  width: 22px; height: 22px; border-radius: 5px; border: 2px solid var(--ink-2);
+  display: grid; place-items: center; margin-top: 1px; color: transparent;
+}
+.tile[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent-line); }
+.tile[aria-pressed="true"] .check { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.tile[aria-pressed="true"] .tile-name { color: var(--ink-2); }
+.tile-body { display: block; min-width: 0; }
+.tile-name { display: block; font-weight: 600; font-size: 14.5px; line-height: 1.3; overflow-wrap: anywhere; }
+.tile-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; margin-top: 6px; font-family: var(--font-mono); font-weight: 500; font-size: 12px; color: var(--ink-2); }
+.tile-note { display: block; margin-top: 6px; font-size: 12.5px; color: var(--ink-2); }
+.tag {
+  font-family: var(--font-mono); font-weight: 500; font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+  padding: 1px 6px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink-2);
+}
+.tag.plan { color: var(--accent); border-color: var(--accent-line); }
+
+.hide-done .tile[aria-pressed="true"] { display: none; }
+
+/* opcionais */
+.more { margin-top: 36px; border-top: 1px solid var(--line); padding-top: 18px; }
+.more summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; font-family: var(--font-display); font-weight: 700; font-size: 21px; }
+.more summary .mono { font-size: 12.5px; color: var(--ink-2); font-family: var(--font-mono); font-weight: 500; }
+.more p { margin: 8px 0 0; color: var(--ink-2); max-width: 64ch; }
+
+/* carreiras */
+.career { margin-top: 38px; }
+.career:first-child { margin-top: 28px; }
+.career-head h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 3.6vw, 28px); line-height: 1.15; margin: 0; text-wrap: balance; }
+.career-meta { margin: 6px 0 0; font-size: 12.5px; color: var(--ink-2); }
+.level { margin-top: 22px; }
+.level h3 { margin: 0; font-size: 15px; font-weight: 600; display: flex; flex-wrap: wrap; gap: 2px 12px; align-items: baseline; }
+.level h3 .mono { font-size: 12px; color: var(--ink-2); }
+.level-note { margin: 4px 0 0; font-size: 13px; color: var(--ink-2); max-width: 64ch; }
+
+.next { margin-top: 16px; padding: 18px; background: var(--surface); border: 1px solid var(--accent-line); border-radius: 10px; display: grid; gap: 10px; }
+.next-name { font-family: var(--font-display); font-weight: 700; font-size: clamp(20px, 4.5vw, 26px); line-height: 1.2; margin: 0; text-wrap: balance; }
+.next-meta { font-size: 12.5px; color: var(--ink-2); }
+.next-row { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.next-btn { font: inherit; font-weight: 600; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; padding: 10px 16px; min-height: 44px; cursor: pointer; }
+.next-last { font-size: 13px; color: var(--ink-2); }
+.backup { margin-top: 36px; font-size: 14px; }
+.backup summary { cursor: pointer; font-weight: 600; }
+.backup p { color: var(--ink-2); margin: 8px 0 0; max-width: 62ch; }
+.backup-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.backup-row button { font: inherit; font-weight: 600; font-size: 14px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 14px; min-height: 40px; cursor: pointer; }
+.backup textarea { width: 100%; margin-top: 10px; font-family: var(--font-mono); font-size: 12px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px; resize: vertical; }
+
+@media (max-width: 560px) {
+  .phase { grid-template-columns: 30px minmax(0, 1fr); column-gap: 12px; }
+  .marker { width: 30px; height: 30px; font-size: 13px; }
+  .phase::before { left: 14px; top: 32px; }
+  .tabs { width: 100%; }
+  .tabs button { flex: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bar > i, .tile { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="eyebrow">Plano de estudos · outubro 2026</div>
+  <h1>Roadmap Engenharia de IA</h1>
+  <p class="lede">Ordem de estudo das carreiras Alura e dos cursos Anthropic. Clica num curso para o marcar como feito.</p>
+
+  <section class="progress" aria-label="Progresso do plano principal">
+    <div class="progress-top">
+      <span class="progress-label" id="p-label"></span>
+      <span class="progress-hours mono" id="p-hours"></span>
+    </div>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="p-bar"><i id="p-fill"></i></div>
+    <div class="progress-sub" id="p-sub"></div>
+  </section>
+
+  <section class="next" id="next" aria-label="Próximo curso"></section>
+
+  <div class="toolbar">
+    <div class="tabs" role="tablist" aria-label="Vista">
+      <button type="button" role="tab" id="tab-cron" aria-selected="true" aria-controls="view-cron">Cronologia</button>
+      <button type="button" role="tab" id="tab-car" aria-selected="false" aria-controls="view-car">Por carreira</button>
+    </div>
+    <label class="toggle" for="hideDone"><input type="checkbox" id="hideDone"> Ocultar concluídos</label>
+  </div>
+
+  <div id="view-cron" role="tabpanel" aria-labelledby="tab-cron"></div>
+  <div id="view-car" role="tabpanel" aria-labelledby="tab-car" hidden></div>
+
+  <details class="backup">
+    <summary>Backup do progresso</summary>
+    <p>O progresso fica guardado neste dispositivo. Copia o backup para o guardares ou para o levares para outro telemóvel.</p>
+    <div class="backup-row">
+      <button type="button" id="btnExport">Copiar backup</button>
+      <button type="button" id="btnImport">Restaurar</button>
+    </div>
+    <textarea id="backupText" rows="3" aria-label="Texto do backup" placeholder="Cola aqui o backup para restaurar"></textarea>
+    <p id="backupMsg" role="status" aria-live="polite"></p>
+  </details>
+</div>
+
+<script>
+(function () {
+  var KEY = "roadmap-ia-v1";
+  var DEFAULT_DONE = ["ea-b1", "ea-1-1"];
+
+  function I(id, name, h, tag, phase, note) {
+    return { id: id, name: name, h: h, tag: tag, phase: phase == null ? null : phase, note: note || "" };
+  }
+
+  var CAREERS = [
+    { key: "ea", short: "Agentes", prov: "Alura", title: "Engenharia de Agentes de IA", sub: "Carreira Alura", levels: [
+      { k: "base", title: "Base · Primeiros passos em programação para IA", items: [
+        I("ea-b1", "Pensamento computacional: fundamentos da computação e lógica de programação", 8, "core", 0),
+        I("ea-b2", "Python: Inteligência Artificial Aplicada", 12, "opt", null, "Já usas Python nos teus projetos. Só conta para o certificado do nível.")
+      ]},
+      { k: "n1", title: "Nível 1 · Construção de Agentes Inteligentes com RAG", items: [
+        I("ea-1-1", "LangChain e Python: criando ferramentas com a OpenAI", 8, "core", 0),
+        I("ea-1-2", "Arquiteturas RAG com LLMs: embeddings, busca semântica e criação de agentes com LangChain", 8, "core", 1),
+        I("ea-1-3", "LangChain: Técnicas Avançadas de RAG", 10, "core", 1),
+        I("ea-1-4", "LangGraph: Orquestrando agentes e multiagentes", 10, "core", 1),
+        I("ea-1-5", "Protocolos e arquitetura para construção de agentes: MCP, A2A, AG-UI e Backend for Agents (BFA)", 12, "core", 1),
+        I("ea-1-6", "Clusterização: lidando com dados sem rótulo", 8, "opt", null, "Machine Learning clássico. Só para fechar o certificado do nível."),
+        I("ea-1-7", "NLP: aplicando processamento de linguagem natural para análise de sentimentos", 10, "opt", null, "Machine Learning clássico. Só para fechar o certificado do nível."),
+        I("ea-1-cp", "Checkpoint Engenharia de IA · Nível 1", 2, "cp")
+      ]},
+      { k: "n2", title: "Nível 2 · Machine Learning, Deep Learning e Fine Tuning", note: "Nível inteiro de engenharia de ML (PyTorch, redes neurais, difusão). Fora do foco de AI Application Engineer.", items: [
+        I("ea-2-1", "Redes Neurais: Deep Learning com PyTorch", 6, "skip"),
+        I("ea-2-2", "Treinando uma Rede Neural: Deep Learning com PyTorch", 8, "skip"),
+        I("ea-2-3", "Redes Neurais Recorrentes: Deep Learning com PyTorch", 10, "skip"),
+        I("ea-2-4", "Redes Neurais Convolucionais: Deep Learning com PyTorch", 10, "skip"),
+        I("ea-2-5", "Hugging Face: explorando e aplicando soluções com modelos de IA", 10, "skip"),
+        I("ea-2-6", "Modelos de Difusão: fundamentos e aplicações avançadas", 16, "skip"),
+        I("ea-2-7", "Transformers: fundamentos e prática com PyTorch", 10, "skip"),
+        I("ea-2-cp", "Checkpoint Engenharia de IA · Nível 2", 2, "cp")
+      ]},
+      { k: "n3", title: "Nível 3 · MLOps: operando sistemas de IA em produção", items: [
+        I("ea-3-1", "Inteligência artificial: preparação para o mercado", 8, "opt"),
+        I("ea-3-2", "Empreendendo com IA: da ideação ao modelo de negócio", 6, "skip"),
+        I("ea-3-3", "Observabilidade para LLMs: monitoramento e avaliação com LangFuse", 12, "core", 5, "Monitorizar e avaliar aplicações com LLM."),
+        I("ea-3-4", "Pipelines de IA em Cloud: Azure, AWS e GCP", 10, "opt"),
+        I("ea-3-5", "MLFlow: gerenciamento de experimentos e integração com IA generativa", 10, "skip"),
+        I("ea-3-6", "Integração contínua para LLMs: automatizando a avaliação de modelos com GitHub Actions e Deepeval", 10, "core", 5, "Testes automáticos aplicados a LLMs."),
+        I("ea-3-7", "Data Science: testando relações com Regressão Linear", 8, "skip"),
+        I("ea-3-8", "Hugging Face: transferindo aprendizado de modelos de NLP", 8, "skip"),
+        I("ea-3-cp", "Checkpoint Engenharia de IA · Nível 3", 2, "cp")
+      ]}
+    ]},
+    { key: "an", short: "AI-Native", prov: "Alura", title: "AI-Native Software Engineering", sub: "Carreira Alura", levels: [
+      { k: "base", title: "Base · Novas competências no desenvolvimento com IA", items: [
+        I("an-b1", "Letramento em IA: competências essenciais e domínio crítico", 6, "opt", null, "Conteúdo básico. Só para o certificado do nível."),
+        I("an-b2", "Soft Skills na era da IA: Como fortalecer metacompetências", 8, "opt", null, "Só para o certificado do nível.")
+      ]},
+      { k: "n1", title: "Nível 1 · IA no fluxo de desenvolvimento", items: [
+        I("an-1-1", "Engenharia de software na era da IA: como usar IA no fluxo real de desenvolvimento", 10, "core", 3),
+        I("an-1-2", "Engenharia de software na era da IA: trabalhando com legado, escala e múltiplos serviços", 14, "core", 3, "Pré-requisito: o curso anterior."),
+        I("an-1-3", "Engenharia de software na era da IA: segurança de aplicações com agentes, MCPs e código gerado por IA", 10, "core", 3, "Segurança com agentes e MCP, tema útil para vagas de agentes."),
+        I("an-1-cp", "Carreira AI-Native Software Engineering · Checkpoint Nível 1", 2, "cp")
+      ]},
+      { k: "n2", title: "Nível 2 · Engenharia de contexto, automações e entrega de valor com IA", items: [
+        I("an-2-1", "Engenharia de software na era da IA: context engineering, workflows e controle de custo", 10, "core", 3),
+        I("an-2-2", "Engenharia de software na era da IA: MCP servers, tools e integrações para agentes de IA", 18, "core", 3, "MCP na prática. Faz antes do MCP Advanced Topics da Anthropic."),
+        I("an-2-3", "Engenharia de software na era da IA: planejamento, automações e entrega em escala com agentes de IA", 8, "core", 3),
+        I("an-2-cp", "Carreira AI-Native Software Engineering · Checkpoint Nível 2", 2, "cp")
+      ]},
+      { k: "n3", title: "Nível 3 · Liderança, governança e estratégia de IA", items: [
+        I("an-3-1", "IA na engenharia de software: guardrails de qualidade e estratégias de adoção", 6, "opt", null, "Curto e ligado a qualidade. Interessante como avulso.")
+      ]}
+    ]},
+    { key: "ar", short: "Arquitetura", prov: "Alura", title: "Arquitetura de Soluções com IA", sub: "Carreira Alura", levels: [
+      { k: "base", title: "Base · Papel da pessoa arquiteta de soluções", items: [
+        I("ar-b1", "Arquitetura de Soluções: papel do arquiteto e pensamento sistêmico", 10, "core", 6)
+      ]},
+      { k: "n1", title: "Nível 1 · Fundamentos da arquitetura de soluções", items: [
+        I("ar-1-1", "Domain-Driven Design: modelagem tática e arquitetura orientada a negócio", 10, "skip", null, "Já cobrido na Alura e no estágio (Hexagonal + DDD)."),
+        I("ar-1-2", "Requisitos Não Funcionais: atributos de qualidade e priorização", 10, "core", 6),
+        I("ar-1-3", "Decisões arquiteturais: ADRs, trade-offs e governança técnica", 16, "core", 6, "Material para ADRs nos projetos de portfólio."),
+        I("ar-1-4", "Documentação Arquitetural: comunicação técnica e diagramas para stakeholders", 10, "opt"),
+        I("ar-1-5", "Microsserviços: migração de monólitos e modularização", 10, "skip", null, "Já cobrido (Microsserviços com Spring Boot e RabbitMQ)."),
+        I("ar-1-6", "Performance: decisão arquitetural, latência e cache", 14, "opt"),
+        I("ar-1-cp", "Checkpoint Arquitetura de Soluções com IA · Nível 1", 12, "cp")
+      ]},
+      { k: "n2", title: "Nível 2 · Arquitetura em produção", items: [
+        I("ar-2-1", "Cloud Native: arquitetura, multicloud e FinOps", 10, "skip", null, "Rende mais com sistemas em produção."),
+        I("ar-2-2", "Sistemas distribuídos: integrações resilientes e orientadas a eventos", 10, "core", 6),
+        I("ar-2-3", "Segurança Arquitetural: modelagem de ameaças e Zero Trust", 10, "core", 6),
+        I("ar-2-4", "Gestão de incidentes: arquitetura em cenários de crise", 8, "skip", null, "Rende mais com sistemas em produção.")
+      ]},
+      { k: "n3", title: "Nível 3 · Arquitetura Estratégica, IA e Liderança", note: "Em breve. A Alura ainda não publicou cursos neste nível.", items: [] }
+    ]},
+    { key: "at", short: "Anthropic", prov: "Anthropic", title: "Cursos Anthropic", sub: "Anthropic Academy", levels: [
+      { k: "all", title: "Claude API e MCP", note: "A duração não está indicada nos cursos.", items: [
+        I("at-1", "Building with the Claude API", null, "core", 2),
+        I("at-2", "Introduction to MCP", null, "core", 2, "MCP assenta em tool use, por isso vem depois da Claude API."),
+        I("at-3", "MCP Advanced Topics", null, "core", 4)
+      ]}
+    ]},
+    { key: "av", short: "Avulso", prov: "Alura", title: "Cursos avulsos", sub: "Alura, fora das carreiras", levels: [
+      { k: "all", title: "Avulsos", items: [
+        I("av-1", "Agentes de IA na AWS com Amazon Bedrock", 18, "core", 4, "Cobre a parte de AWS ligada a agentes e MCP, em vez de uma certificação genérica.")
+      ]}
+    ]}
+  ];
+
+  var PHASES = [
+    { n: 0, title: "Base concluída", goal: "O que já tens feito na carreira de Engenharia de Agentes." },
+    { n: 1, title: "Agentes com LangChain e LangGraph", goal: "Fechar o Nível 1 da carreira de agentes: RAG, LangGraph e protocolos como MCP.", extra: "A trilha avulsa equivalente tem 46 h e inclui ainda um projeto final." },
+    { n: 2, title: "Claude API e MCP", goal: "Primeiro a Claude API, depois a introdução ao MCP.", extra: "Cursos da Anthropic Academy." },
+    { n: 3, title: "AI-Native Software Engineering", goal: "IA no fluxo real de desenvolvimento, segurança com agentes e MCP na prática." },
+    { n: 4, title: "MCP avançado e AWS", goal: "Aprofundar o MCP depois da prática da fase anterior e ligar agentes à AWS." },
+    { n: 5, title: "Avaliar e testar sistemas de LLM", goal: "Observabilidade e testes automáticos para LLMs. Encaixa no TrackCargo." },
+    { n: 6, title: "Arquitetura de soluções", goal: "Papel do arquiteto, requisitos, ADRs, sistemas distribuídos e segurança arquitetural." }
+  ];
+
+  var COURSES = [];
+  CAREERS.forEach(function (c) {
+    c.levels.forEach(function (l) {
+      l.items.forEach(function (it) { it.career = c; it.level = l; COURSES.push(it); });
+    });
+  });
+
+  var TICK = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+
+  /* estado: "state" guarda os cursos feitos, "at" a data em que cada um foi marcado */
+  var state = new Set(DEFAULT_DONE);
+  var at = {};
+  loadLocal();
+
+  function loadLocal() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      var d = JSON.parse(raw);
+      if (d && Array.isArray(d.done)) {
+        state = new Set(d.done);
+        at = d.at && typeof d.at === "object" ? d.at : {};
+      }
+    } catch (e) {}
+  }
+  function saveLocal() {
+    try { localStorage.setItem(KEY, JSON.stringify({ done: Array.from(state).sort(), at: at })); } catch (e) {}
+  }
+
+  /* construção */
+  function tileHtml(c, opts) {
+    var meta = [];
+    meta.push("<span>" + (opts.career ? c.career.short + " · " : "") + c.career.prov + "</span>");
+    if (c.h) meta.push("<span>" + c.h + " h</span>");
+    if (opts.tag) {
+      if (c.tag === "core") meta.push('<span class="tag plan">Fase ' + c.phase + "</span>");
+      else if (c.tag === "opt") meta.push('<span class="tag">Opcional</span>');
+      else if (c.tag === "skip") meta.push('<span class="tag">Fora do foco</span>');
+      else meta.push('<span class="tag">Checkpoint</span>');
+    }
+    return '<button type="button" class="tile" data-id="' + c.id + '" aria-pressed="false">' +
+      '<span class="check" aria-hidden="true">' + TICK + "</span>" +
+      '<span class="tile-body"><span class="tile-name">' + c.name + "</span>" +
+      '<span class="tile-meta">' + meta.join("") + "</span>" +
+      (c.note ? '<span class="tile-note">' + c.note + "</span>" : "") +
+      "</span></button>";
+  }
+
+  function buildCron() {
+    var html = '<ol class="phases">';
+    PHASES.forEach(function (p) {
+      var list = COURSES.filter(function (c) { return c.tag === "core" && c.phase === p.n; });
+      html += '<li class="phase" id="phase-' + p.n + '"><div class="marker" aria-hidden="true">' + p.n + "</div>" +
+        '<div class="phase-body"><div class="phase-head"><h2>' + p.title + "</h2>" +
+        '<p class="phase-goal">' + p.goal + "</p>" +
+        '<p class="phase-meta mono" id="stat-p' + p.n + '"></p>';
+      if (p.link) html += '<p class="phase-extra"><a href="' + p.link.href + '" target="_blank" rel="noopener">' + p.link.text + "</a>. " + (p.extra || "") + "</p>";
+      else if (p.extra) html += '<p class="phase-extra">' + p.extra + "</p>";
+      html += '</div><div class="tiles">' + list.map(function (c) { return tileHtml(c, { career: true }); }).join("") + "</div></div></li>";
+    });
+    html += "</ol>";
+    var opt = COURSES.filter(function (c) { return c.tag === "opt"; });
+    html += '<details class="more"><summary><span>Cursos opcionais</span><span class="mono" id="stat-opt"></span></summary>' +
+      "<p>Úteis, mas fora do caminho principal. Faz se sobrar tempo ou se uma vaga pedir.</p>" +
+      '<div class="tiles">' + opt.map(function (c) { return tileHtml(c, { career: true }); }).join("") + "</div></details>";
+    $("#view-cron").innerHTML = html;
+  }
+
+  function buildCareers() {
+    var html = "";
+    CAREERS.forEach(function (c) {
+      html += '<section class="career" id="career-' + c.key + '"><div class="career-head"><h2>' + c.title + "</h2>" +
+        '<p class="career-meta mono" id="stat-c-' + c.key + '"></p></div>';
+      c.levels.forEach(function (l) {
+        html += '<div class="level"><h3><span>' + l.title + '</span><span class="mono" id="stat-l-' + c.key + "-" + l.k + '"></span></h3>';
+        if (l.note) html += '<p class="level-note">' + l.note + "</p>";
+        if (l.items.length) html += '<div class="tiles">' + l.items.map(function (it) { return tileHtml(it, { tag: true }); }).join("") + "</div>";
+        html += "</div>";
+      });
+      html += "</section>";
+    });
+    $("#view-car").innerHTML = html;
+  }
+
+  /* contagens */
+  function hoursInfo(list) {
+    var h = 0, unknown = 0;
+    list.forEach(function (c) { if (c.h) h += c.h; else unknown += 1; });
+    return { h: h, unknown: unknown };
+  }
+  function doneCount(list) { return list.filter(function (c) { return state.has(c.id); }).length; }
+  function metaText(list) {
+    var hi = hoursInfo(list), parts = [];
+    parts.push(list.length + (list.length === 1 ? " curso" : " cursos"));
+    if (hi.h) parts.push(hi.h + " h");
+    if (hi.unknown) parts.push(hi.unknown + " sem duração indicada");
+    parts.push(doneCount(list) + "/" + list.length + " feitos");
+    return parts.join(" · ");
+  }
+
+  function applyState() {
+    $$(".tile").forEach(function (b) {
+      b.setAttribute("aria-pressed", state.has(b.dataset.id) ? "true" : "false");
+    });
+
+    PHASES.forEach(function (p) {
+      var list = COURSES.filter(function (c) { return c.tag === "core" && c.phase === p.n; });
+      $("#stat-p" + p.n).textContent = metaText(list);
+      var li = $("#phase-" + p.n), done = doneCount(list) === list.length;
+      li.classList.toggle("is-done", done);
+      $(".marker", li).textContent = done ? "✓" : String(p.n);
+    });
+
+    var opt = COURSES.filter(function (c) { return c.tag === "opt"; });
+    $("#stat-opt").textContent = doneCount(opt) + " de " + opt.length + " feitos";
+
+    CAREERS.forEach(function (c) {
+      var all = COURSES.filter(function (x) { return x.career === c; });
+      var hi = hoursInfo(all), parts = [c.sub, all.length + (all.length === 1 ? " item" : " itens")];
+      if (hi.h) parts.push(hi.h + " h");
+      parts.push(doneCount(all) + "/" + all.length + " feitos");
+      $("#stat-c-" + c.key).textContent = parts.join(" · ");
+      c.levels.forEach(function (l) {
+        var lh = hoursInfo(l.items), lp = [];
+        if (!l.items.length) { $("#stat-l-" + c.key + "-" + l.k).textContent = ""; return; }
+        if (lh.h) lp.push(lh.h + " h");
+        lp.push(doneCount(l.items) + "/" + l.items.length);
+        $("#stat-l-" + c.key + "-" + l.k).textContent = lp.join(" · ");
+      });
+    });
+
+    var core = COURSES.filter(function (c) { return c.tag === "core"; });
+    var dc = doneCount(core), pct = Math.round(dc / core.length * 100);
+    var withH = core.filter(function (c) { return c.h; });
+    var totalH = 0, doneH = 0;
+    withH.forEach(function (c) { totalH += c.h; if (state.has(c.id)) doneH += c.h; });
+    $("#p-label").textContent = "Plano principal: " + dc + " de " + core.length + " cursos (" + pct + "%)";
+    $("#p-hours").textContent = doneH + " h de " + totalH + " h";
+    $("#p-fill").style.width = pct + "%";
+    $("#p-bar").setAttribute("aria-valuenow", String(pct));
+    var optAll = COURSES.filter(function (c) { return c.tag === "opt"; });
+    var skip = COURSES.filter(function (c) { return c.tag === "skip"; });
+    $("#p-sub").textContent = "Opcionais: " + doneCount(optAll) + " de " + optAll.length + " · Fora do foco: " + doneCount(skip) + " de " + skip.length + ". As horas contam só cursos com duração indicada.";
+    renderNext();
+  }
+
+  /* ações */
+  function toggle(id) {
+    if (state.has(id)) { state.delete(id); delete at[id]; }
+    else { state.add(id); at[id] = Date.now(); }
+    saveLocal();
+    applyState();
+  }
+
+  function renderNext() {
+    var el = $("#next");
+    var core = COURSES.filter(function (c) { return c.tag === "core"; });
+    var next = null, i, list;
+    for (i = 0; i < PHASES.length && !next; i++) {
+      list = core.filter(function (c) { return c.phase === PHASES[i].n && !state.has(c.id); });
+      if (list.length) next = list[0];
+    }
+    var lastId = null, lastTs = 0;
+    Object.keys(at).forEach(function (id) {
+      if (state.has(id) && at[id] > lastTs) { lastTs = at[id]; lastId = id; }
+    });
+    var lastText = "";
+    if (lastId) {
+      var lc = COURSES.filter(function (c) { return c.id === lastId; })[0];
+      var days = Math.floor((Date.now() - lastTs) / 86400000);
+      var when = days <= 0 ? "hoje" : days === 1 ? "ontem" : "há " + days + " dias";
+      if (lc) lastText = "Último concluído " + when + ": " + lc.name;
+    }
+    if (!next) {
+      el.innerHTML = '<div class="eyebrow">Plano principal</div><h2 class="next-name">Plano principal concluído</h2>' +
+        (lastText ? '<div class="next-last">' + lastText + "</div>" : "");
+      return;
+    }
+    var meta = ["Fase " + next.phase, next.career.prov];
+    if (next.h) meta.push(next.h + " h");
+    el.innerHTML = '<div class="eyebrow">Próximo curso</div>' +
+      '<h2 class="next-name">' + next.name + "</h2>" +
+      '<div class="next-meta mono">' + meta.join(" · ") + "</div>" +
+      '<div class="next-row"><button type="button" class="next-btn" data-next="' + next.id + '">Marcar como feito</button>' +
+      (lastText ? '<span class="next-last">' + lastText + "</span>" : "") + "</div>";
+  }
+
+  function backupMsg(t) { $("#backupMsg").textContent = t; }
+  function exportBackup() {
+    var txt = JSON.stringify({ done: Array.from(state).sort(), at: at });
+    var ta = $("#backupText");
+    ta.value = txt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { backupMsg("Backup copiado."); },
+        function () { ta.select(); backupMsg("Copia o texto da caixa."); });
+    } else { ta.select(); backupMsg("Copia o texto da caixa."); }
+  }
+  function importBackup() {
+    try {
+      var d = JSON.parse($("#backupText").value);
+      if (!d || !Array.isArray(d.done)) throw new Error("formato");
+      var known = {};
+      COURSES.forEach(function (c) { known[c.id] = true; });
+      state = new Set(d.done.filter(function (id) { return known[id]; }));
+      at = {};
+      if (d.at && typeof d.at === "object") {
+        Object.keys(d.at).forEach(function (k) {
+          if (state.has(k) && typeof d.at[k] === "number") at[k] = d.at[k];
+        });
+      }
+      saveLocal();
+      applyState();
+      backupMsg("Progresso restaurado.");
+    } catch (e) { backupMsg("Backup inválido. Cola o texto copiado com Copiar backup."); }
+  }
+
+  /* vistas */
+  function showTab(which) {
+    var cron = which === "cron";
+    $("#view-cron").hidden = !cron;
+    $("#view-car").hidden = cron;
+    $("#tab-cron").setAttribute("aria-selected", cron ? "true" : "false");
+    $("#tab-car").setAttribute("aria-selected", cron ? "false" : "true");
+  }
+
+  buildCron();
+  buildCareers();
+  applyState();
+
+  document.addEventListener("click", function (e) {
+    var n = e.target.closest ? e.target.closest("[data-next]") : null;
+    if (n) { toggle(n.dataset.next); return; }
+    var b = e.target.closest ? e.target.closest(".tile") : null;
+    if (b) toggle(b.dataset.id);
+  });
+  $("#tab-cron").addEventListener("click", function () { showTab("cron"); });
+  $("#tab-car").addEventListener("click", function () { showTab("car"); });
+  $("#hideDone").addEventListener("change", function (e) {
+    $("#app").classList.toggle("hide-done", e.target.checked);
+  });
+
+  $("#btnExport").addEventListener("click", exportBackup);
+  $("#btnImport").addEventListener("click", importBackup);
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -241,9 +241,11 @@ button:focus-visible, summary:focus-visible, .toggle input:focus-visible, a:focu
   <details class="backup">
     <summary>Backup do progresso</summary>
     <p>O progresso fica guardado neste dispositivo. Copia o backup para o guardares ou para o levares para outro telemóvel.</p>
-    <div class="backup-row">
+    <div class="backup-row" style="align-items:center">
       <button type="button" id="btnExport">Copiar backup</button>
       <button type="button" id="btnImport">Restaurar</button>
+      <button type="button" id="btnSync" style="border-color:var(--accent);color:var(--accent)">→ Sincronizar portfolio</button>
+      <span id="sync-status" style="font-size:13px;color:var(--ink-2);transition:opacity 0.6s;opacity:0"></span>
     </div>
     <textarea id="backupText" rows="3" aria-label="Texto do backup" placeholder="Cola aqui o backup para restaurar"></textarea>
     <p id="backupMsg" role="status" aria-live="polite"></p>
@@ -512,12 +514,106 @@ button:focus-visible, summary:focus-visible, .toggle input:focus-visible, a:focu
     renderNext();
   }
 
+  /* ── PORTFOLIO SYNC ── */
+  var SYNC_KEY = "roadmap-gh-token";
+  var PORTFOLIO_REPO = "eversonrubira/eversonrubira.github.io";
+  var JSON_PATH = "roadmap-summary.json";
+  var syncTimer = null;
+
+  function buildSummaryJson() {
+    var core = COURSES.filter(function (c) { return c.tag === "core"; });
+    var dc = doneCount(core);
+    var pct = Math.round(dc / core.length * 100);
+    var phasesDone = 0;
+    var currentPhase = null, nextPhase = null;
+    PHASES.forEach(function (p) {
+      var list = core.filter(function (c) { return c.phase === p.n; });
+      var allDone = list.length > 0 && doneCount(list) === list.length;
+      if (allDone) phasesDone++;
+      if (!currentPhase && !allDone && list.length > 0) currentPhase = p;
+    });
+    var cpIdx = currentPhase ? PHASES.indexOf(currentPhase) : -1;
+    if (cpIdx >= 0 && cpIdx + 1 < PHASES.length) nextPhase = PHASES[cpIdx + 1];
+    var currentCoursesDone = 0, currentCoursesTotal = 0;
+    if (currentPhase) {
+      var cList = core.filter(function (c) { return c.phase === currentPhase.n; });
+      currentCoursesDone = doneCount(cList);
+      currentCoursesTotal = cList.length;
+    }
+    var phasesArr = PHASES.map(function (p) {
+      var list = core.filter(function (c) { return c.phase === p.n; });
+      return {
+        n: p.n, title: p.title,
+        done: list.length > 0 && doneCount(list) === list.length,
+        courses_done: doneCount(list), courses_total: list.length
+      };
+    });
+    return {
+      _v: 1,
+      _updated: new Date().toISOString(),
+      label: "AI Engineering",
+      progress: { pct: pct, done: dc, total: core.length, phases_done: phasesDone, phases_total: PHASES.length },
+      current_phase: currentPhase ? { n: currentPhase.n, title: currentPhase.title, courses_done: currentCoursesDone, courses_total: currentCoursesTotal } : null,
+      next_phase: nextPhase ? { n: nextPhase.n, title: nextPhase.title } : null,
+      phases: phasesArr
+    };
+  }
+
+  function syncToPortfolio() {
+    var token = localStorage.getItem(SYNC_KEY);
+    if (!token) {
+      token = prompt("GitHub Personal Access Token (guardado apenas neste browser):\n\nPrecisa de permissão: Contents → Read and write\nno repo eversonrubira/eversonrubira.github.io");
+      if (!token) return;
+      localStorage.setItem(SYNC_KEY, token.trim());
+      token = token.trim();
+    }
+    var summary = buildSummaryJson();
+    var content = btoa(unescape(encodeURIComponent(JSON.stringify(summary, null, 2))));
+    var api = "https://api.github.com/repos/" + PORTFOLIO_REPO + "/contents/" + JSON_PATH;
+    // get current sha
+    fetch(api, { headers: { "Authorization": "Bearer " + token, "Accept": "application/vnd.github+json" } })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        return fetch(api, {
+          method: "PUT",
+          headers: { "Authorization": "Bearer " + token, "Accept": "application/vnd.github+json", "Content-Type": "application/json" },
+          body: JSON.stringify({ message: "roadmap: sync progress " + new Date().toISOString().slice(0,10), content: content, sha: d.sha })
+        });
+      })
+      .then(function (r) {
+        if (r.ok) { showSyncStatus("✓ Portfolio sincronizado"); }
+        else {
+          r.json().then(function (e) {
+            if (e.message && e.message.indexOf("Bad credentials") >= 0) {
+              localStorage.removeItem(SYNC_KEY);
+              showSyncStatus("✗ Token inválido — removido. Tenta outra vez.");
+            } else { showSyncStatus("✗ Erro: " + (e.message || r.status)); }
+          });
+        }
+      })
+      .catch(function () { showSyncStatus("✗ Falha de rede"); });
+  }
+
+  function showSyncStatus(msg) {
+    var el = document.getElementById("sync-status");
+    if (!el) return;
+    el.textContent = msg;
+    el.style.opacity = "1";
+    setTimeout(function () { el.style.opacity = "0"; }, 3500);
+  }
+
+  function scheduleSync() {
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(syncToPortfolio, 1200);
+  }
+
   /* ações */
   function toggle(id) {
     if (state.has(id)) { state.delete(id); delete at[id]; }
     else { state.add(id); at[id] = Date.now(); }
     saveLocal();
     applyState();
+    if (localStorage.getItem(SYNC_KEY)) scheduleSync();
   }
 
   function renderNext() {
@@ -609,6 +705,7 @@ button:focus-visible, summary:focus-visible, .toggle input:focus-visible, a:focu
 
   $("#btnExport").addEventListener("click", exportBackup);
   $("#btnImport").addEventListener("click", importBackup);
+  $("#btnSync").addEventListener("click", syncToPortfolio);
 
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {

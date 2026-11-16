@@ -9,6 +9,7 @@ export type JsonSchema = {
   required?: string[];
   additionalProperties?: boolean;
   items?: JsonSchema;
+  anyOf?: JsonSchema[];
   enum?: (string | number | null)[];
   minLength?: number;
   maxLength?: number;
@@ -53,7 +54,7 @@ export const RECOMMENDATION_SCHEMA: JsonSchema = {
       type: "array", maxItems: 3,
       items: {
         type: "object", additionalProperties: false, required: ["title", "provider", "url"],
-        properties: { title: str(200), provider: str(80), url: { type: ["string", "null"], maxLength: 500 } },
+        properties: { title: str(200), provider: str(80), url: { anyOf: [{ type: "string", maxLength: 500 }, { type: "null" }] } },
       },
     },
     confidence: { type: "string", enum: [...CONFIDENCE] },
@@ -99,14 +100,14 @@ export const EXPLANATION_SCHEMA: JsonSchema = {
 
 export const EXPLAIN_QUESTIONS = ["why", "evidence_used", "shorter_alternative", "need_course", "how_to_know"] as const;
 
-/** Remove palavras-chave que a API de Structured Outputs não aceita; a validação local mantém-nas. */
+/** Remove palavras-chave que a API de Structured Outputs não aceita (min/max, tamanhos); a validação local mantém-nas. */
 export function toApiSchema(s: JsonSchema): JsonSchema {
   const out: JsonSchema = { ...s };
-  for (const k of ["minLength", "maxLength", "minimum", "maximum", "maxItems"] as const) delete out[k];
-  if (out.minItems !== undefined && out.minItems > 1) out.minItems = 1;
+  for (const k of ["minLength", "maxLength", "minimum", "maximum", "maxItems", "minItems"] as const) delete out[k];   // a API não aceita estas restrições; validamos nós
   if (out.properties) {
     out.properties = Object.fromEntries(Object.entries(out.properties).map(([k, v]) => [k, toApiSchema(v)]));
   }
   if (out.items) out.items = toApiSchema(out.items);
+  if (out.anyOf) out.anyOf = out.anyOf.map(toApiSchema);
   return out;
 }

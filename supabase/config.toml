@@ -1,4 +1,7 @@
-# Configuração mínima para `supabase functions deploy`.
+# Configuração mínima para `supabase link`, `db push` e `functions deploy`.
+# project_id é só um nome local (o CLI recusa-se a arrancar sem ele); o projeto real é ligado com `supabase link`.
+project_id = "learning-journey"
+
 # verify_jwt = false: o gateway não valida o token; cada função valida-o ela própria
 # (admin.auth.getUser) e recusa pedidos sem utilizador autenticado. Isto também funciona
 # com as novas chaves "publishable" (que não são JWT).

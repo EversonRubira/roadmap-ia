@@ -32,7 +32,7 @@ export async function analyse(deps: Deps, body: { mode: "candidates" | "full"; l
     if (body.mode === "full" && runId) {
       const p = assessmentPrompt(body.language, profile, comps, evidence);
       const { value, res } = await callAndCheck(deps, runId,
-        { ...p, schema: ASSESSMENT_SCHEMA, maxTokens: 4000, effort: "medium" },
+        { ...p, schema: ASSESSMENT_SCHEMA, maxTokens: 8000, effort: "medium" },
         (j) => checkAssessments(j, { slugs: comps.map((c) => c.slug), language: body.language }));
       const rows = value.assessments.map((a) => {
         const comp = comps.find((c) => c.slug === a.competencyId)!;

@@ -3,7 +3,7 @@
 Automático (`npm test`, `npm run test:e2e`):
 
 - [x] `manifest.webmanifest` mantém `id`, `start_url`, `scope`, `display: standalone` e os 3 ícones → a instalação existente continua válida
-- [x] Cache `lj-v2.0.0` ≠ `roadmap-ia-v1`; ao ativar, apaga caches antigas **próprias** e recarrega janelas abertas → a interface antiga não persiste
+- [x] Cache `lj-v2.1.0` ≠ `roadmap-ia-v1`; ao ativar, apaga caches antigas **próprias** e recarrega janelas abertas → a interface antiga não persiste
 - [x] Estratégia rede-primeiro (4 s) para a app → nova versão assim que há ligação; offline serve cópia
 - [x] Supabase/Functions não passam pelo service worker (nada autenticado fica em cache)
 - [x] Todos os ficheiros do shell existem e todos os módulos JS estão listados (um 404 no `addAll` impediria a atualização)

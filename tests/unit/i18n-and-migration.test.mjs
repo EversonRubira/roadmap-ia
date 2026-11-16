@@ -10,7 +10,7 @@ import { EVIDENCE_TYPES, groupsOf as clientGroups } from "../../js/evidence-grou
 import { groupsOf as serverGroups } from "../../supabase/functions/_shared/candidates.ts";
 
 const walk = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
-const src = walk("js").filter((f) => f.endsWith(".js") && !f.includes("locales")).map((f) => readFileSync(f, "utf8")).join("\n");
+const src = walk("js").filter((f) => f.endsWith(".js") && !f.includes("locales") && !f.includes("vendor")).map((f) => readFileSync(f, "utf8")).join("\n");
 
 test("PT e EN têm exatamente as mesmas chaves", () => {
   assert.deepEqual(Object.keys(pt).sort(), Object.keys(en).sort());

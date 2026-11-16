@@ -82,7 +82,8 @@ onLangChange(() => { render.langChanged = true; render(true); });
 window.addEventListener("hashchange", () => render());
 window.addEventListener("online", () => { render(); if (api.hasSession()) store.loadAll().catch(() => {}); });
 window.addEventListener("offline", () => render());
-window.addEventListener("lj:session-expired", () => { expired = true; store.clearLocalData(); render(true); });
+// o servidor recusou o token (401): termina a sessão local (o SDK ainda a considerava válida) e pede novo login
+window.addEventListener("lj:session-expired", () => { expired = true; store.clearLocalData(); api.signOut().catch(() => {}).finally(() => render(true)); });
 api.onSession((s) => { if (s) { expired = false; boot(); } else { if (S.loaded) expired = true; render(true); } });
 $("#btn-lang").addEventListener("click", async () => {
   const next = getLang() === "pt-PT" ? "en-GB" : "pt-PT";
@@ -92,7 +93,10 @@ $("#btn-lang").addEventListener("click", async () => {
 $("#btn-settings").addEventListener("click", openSettings);
 
 setLang(getLang(), { persist: false });
-boot();
+(async () => {
+  if (isConfigured()) { try { await api.initAuth(); } catch (_e) { /* sem SDK/rede: cai no ecrã de login */ } }
+  boot();
+})();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });

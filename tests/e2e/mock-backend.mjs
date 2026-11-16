@@ -4,6 +4,11 @@ import { randomUUID } from "node:crypto";
 const SLUGS = [["llm-integration", "LLM Integration", 5], ["context-engineering", "Context Engineering", 4], ["retrieval", "Retrieval", 4], ["agents-tools", "Agents & Tools", 5],
   ["evals-reliability", "Evals & Reliability", 5], ["safety-control", "Safety & Control", 4], ["production-ai", "Production AI", 4], ["ai-native-engineering", "AI-Native Software Engineering", 3]];
 
+const b64 = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
+const fakeJwt = (uid, ttl = 3600) => `${b64({ alg: "HS256", typ: "JWT" })}.${b64({ sub: uid, role: "authenticated", aud: "authenticated", exp: Math.floor(Date.now() / 1000) + ttl })}.sig`;
+const sessionBody = (uid, email) => ({ access_token: fakeJwt(uid), token_type: "bearer", expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, refresh_token: "ref-" + Math.random().toString(36).slice(2),
+  user: { id: uid, aud: "authenticated", role: "authenticated", email, app_metadata: {}, user_metadata: {}, created_at: new Date().toISOString() } });
+
 export function createBackend() {
   const uid = randomUUID();
   const db = {
@@ -15,7 +20,7 @@ export function createBackend() {
     evidence: [], learning_resources: [], recommendations: [], learning_steps: [], learning_step_logs: [], competency_assessments: [], analysis_runs: [], legacy_backups: [],
   };
   const log = [];            // pedidos recebidos (para verificar que não há chamadas à Claude no browser)
-  const q = { fail: null, genLimit: 50 };  // falha forçada para testar erros
+  const q = { fail: null, genLimit: 50, unauth: false };  // falha forçada para testar erros
   const runs = (kind) => db.analysis_runs.push({ kind, status: "ok", cost_usd: 0.01, created_at: new Date().toISOString() });
   const comp = (slug) => db.competencies.find((c) => c.slug === slug);
 
@@ -28,11 +33,12 @@ export function createBackend() {
   }
 
   function handle(method, path, query, body) {
+    if (q.unauth && path.startsWith("/functions/")) return [401, { error: { code: "invalid_token" } }];
     if (q.fail && path.includes(q.fail)) return [500, { error: { code: "internal_error" } }];
     if (path === "/auth/v1/otp") return [200, {}];
-    if (path === "/auth/v1/verify") return body.token === "123456" ? [200, { access_token: "tok", refresh_token: "ref", expires_in: 3600, user: { id: uid, email: body.email } }] : [400, { error_code: "otp_expired" }];
+    if (path === "/auth/v1/verify") return body.token === "123456" ? [200, sessionBody(uid, body.email)] : [403, { code: 403, error_code: "otp_expired", msg: "Token has expired or is invalid" }];
     if (path === "/auth/v1/logout") return [204, null];
-    if (path === "/auth/v1/token") return [200, { access_token: "tok2", refresh_token: "ref2", expires_in: 3600, user: { id: uid, email: "dono@example.com" } }];
+    if (path === "/auth/v1/token") return [200, sessionBody(uid, "dono@example.com")];
     if (path === "/rest/v1/public_journey") return [200, [{ contract_version: 1, applied_competencies: db.competencies.filter((c) => c.is_public && c.status === "applied"), public_evidence: db.evidence.filter((e) => e.visibility === "public"), last_updated_at: new Date().toISOString() }]];
 
     let m = path.match(/^\/rest\/v1\/rpc\/(\w+)$/);
@@ -64,7 +70,8 @@ export function createBackend() {
       return [201, made];
     }
     if (method === "PATCH") {
-      const [col, val] = [...query.entries()].find(([k]) => k !== "select")?.[1]?.startsWith("eq.") ? [[...query.keys()][0], [...query.values()][0].slice(3)] : [null, null];
+      const [col, raw] = [...query.entries()].find(([k]) => k !== "select") || [null, ""];
+      const val = raw.slice(3);
       const hit = rows.filter((r) => col && String(r[col]) === val); hit.forEach((r) => Object.assign(r, body));
       return [200, hit];
     }

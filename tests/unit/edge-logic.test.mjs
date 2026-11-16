@@ -119,3 +119,12 @@ test("avaliações: competência desconhecida e idioma errado falham", () => {
 });
 
 test("custo estimado", () => assert.equal(estimateCostUsd("claude-opus-5-5", 1_000_000, 100_000), 6));
+
+test("schema para a API: sem arrays de tipos, sem min/max/minItems; url aceita string ou null (anyOf)", () => {
+  const api = JSON.stringify(toApiSchema(RECOMMENDATION_SCHEMA));
+  assert.ok(!/"type":\[/.test(api) && !/minItems|maxItems|minLength|maxLength|minimum|maximum/.test(api));
+  assert.ok(api.includes('"anyOf":[{"type":"string"},{"type":"null"}]'));
+  const withUrl = (url) => ({ ...good, actionType: "improvement", learningResources: [{ title: "Curso A", provider: "Alura", url }] });
+  const c = (url) => checkRecommendation(withUrl(url), { ...ctx, resources: [{ title: "Curso A", provider: "Alura", url: url === 42 ? null : url }] });
+  assert.equal(c(null).ok, true); assert.equal(c("https://x.y/z").ok, true); assert.equal(c(42).ok, false);
+});

@@ -24,7 +24,7 @@ export async function explain(deps: Deps, body: { recommendationId: string; ques
     if (!comp) throw new HttpError(404, "not_found");
     const p = explainPrompt(body.language, body.question, rec, comp, evidence, resources);
     const { value, res } = await callAndCheck(deps, runId,
-      { ...p, schema: EXPLANATION_SCHEMA, maxTokens: 1200, effort: "low" },
+      { ...p, schema: EXPLANATION_SCHEMA, maxTokens: 4000, effort: "low" },
       (j) => checkExplanation(j, body.language));
     await port.setExplanation(rec.id, key, { answer: value.answer, points: value.points });
     await port.finishRun(runId, usage(res, { status: "ok" }));

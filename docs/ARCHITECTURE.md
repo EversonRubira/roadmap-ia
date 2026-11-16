@@ -27,7 +27,7 @@ PWA (GitHub Pages, /roadmap-ia/)  ──JWT──►  Supabase Auth (código por
                                              public_journey (view)  ──►  Portfólio / learning-journey.html (anon, só leitura)
 ```
 
-* Frontend: ES modules nativos, **sem build e sem dependências**. Cliente Supabase mínimo próprio (`js/api.js`, ~120 linhas) para Auth OTP, PostgREST e Functions — evita 50 kB de biblioteca e um CDN. Todo o DOM é criado com `textContent` (`js/dom.js`); não existe `innerHTML`, por isso texto devolvido pelo modelo nunca é interpretado como HTML (um teste garante-o).
+* Frontend: ES modules nativos, **sem build e sem dependências**. **`@supabase/supabase-js` oficial, versão fixa 2.119.0, vendorizado** em `js/vendor/` (sem CDN, compatível com a CSP `script-src 'self'`, guardado pelo service worker; SHA-256 verificado por teste). Trata Auth (código por email), sessão persistente (`localStorage["lj-auth"]`), refresh automático, PostgREST e Edge Functions. `js/api.js` é só uma camada fina que mantém a interface da app e converte erros do SDK em códigos curtos. Todo o DOM é criado com `textContent` (`js/dom.js`); não existe `innerHTML`, por isso texto devolvido pelo modelo nunca é interpretado como HTML (um teste garante-o).
 * Login: **código de 6 dígitos por email**, não magic link. Um magic link abre no browser, não na PWA instalada (sobretudo iOS) e a sessão ficaria no sítio errado.
 * Estado: `js/store.js`. Nenhuma alteração aparece como guardada antes de o servidor responder; offline só lê.
 

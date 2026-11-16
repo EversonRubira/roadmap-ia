@@ -1,54 +1,40 @@
-# Instruções de deploy
+# Deploy, secrets e rollback
 
-Nada disto foi executado por mim: não tenho acesso ao teu projeto Supabase nem à Claude API. Segue por ordem.
+> Primeiro teste real: segue **[STAGING.md](STAGING.md)** (passo a passo, assume zero experiência com Supabase).
+> Produção = repetir o mesmo guia com um projeto Supabase de produção e depois fazer merge.
 
-## 1. Supabase (uma vez)
+## Versões fixas
 
-1. Cria um projeto (região UE). Em **Authentication → Providers → Email** deixa o email ligado e **desliga "Allow new users to sign up"**.
-2. Em **Authentication → Email Templates → Magic Link** (é o template usado pelo código) garante que o corpo contém `{{ .Token }}` (ex.: `O teu código: {{ .Token }}`). Em **Authentication → URL Configuration** põe `https://eversonrubira.github.io/roadmap-ia/` como Site URL.
-3. **Authentication → Users → Add user**: cria o teu utilizador (o único). Primeiro login na app → `bootstrap_owner()` cria o perfil e semeia as 8 competências; qualquer outro utilizador recebe `owner_already_exists`.
-4. Aplica a migration: `supabase link --project-ref <ref> && supabase db push` (ou cola `supabase/migrations/20261116000000_learning_journey.sql` no SQL editor).
-5. Anota **Project URL** e a chave **publishable** (`sb_publishable_…`) em Project Settings → API Keys.
+| Peça | Versão | Onde |
+|---|---|---|
+| `@supabase/supabase-js` (browser) | **2.119.0** (bundle UMD vendorizado, SHA-256 em `js/vendor/README.md`) | `js/vendor/`, `index.html`, `sw.js` |
+| `@supabase/supabase-js` (Edge Functions) | **2.119.0** | `supabase/functions/_shared/runtime.ts` (`npm:…@2.119.0`) |
+| `@anthropic-ai/sdk` (Edge Functions) | **1.8.0** | `supabase/functions/_shared/runtime.ts` (`npm:…@1.8.0`) |
 
-## 2. Secrets das Edge Functions
+`npm test` falha se as versões deixarem de coincidir ou se o ficheiro vendorizado for alterado. Atualizar é sempre um ato deliberado (instruções em `js/vendor/README.md`).
 
-```bash
-supabase secrets set ANTHROPIC_API_KEY=sk-ant-...          # só aqui; nunca no repositório nem no frontend
-supabase secrets set ALLOWED_ORIGINS=https://eversonrubira.github.io   # (opcional) + ,http://localhost:4173 em dev
-supabase secrets set CLAUDE_MODEL=claude-opus-5-5                       # (opcional) por omissão claude-opus-5-5
-supabase secrets set LIMIT_ANALYSIS_PER_DAY=2 LIMIT_GENERATION_PER_DAY=5 LIMIT_EXPLANATION_PER_DAY=20   # (opcional)
-```
+## Secrets das Edge Functions
 
-`SUPABASE_URL`, `SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY` são injetadas pela plataforma nas funções. A `service_role` **nunca** vai para o browser nem para o Git.
+| Nome | Obrigatório | Valor |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | sim | chave da Anthropic (só aqui; nunca no Git nem no frontend) |
+| `ALLOWED_ORIGINS` | sim | origens do PWA separadas por vírgula, ex.: `https://eversonrubira.github.io` (staging: + `http://localhost:8000` e o URL do túnel) |
+| `CLAUDE_MODEL` | não | por omissão `claude-opus-5-5` |
+| `LIMIT_ANALYSIS_PER_DAY` / `LIMIT_GENERATION_PER_DAY` / `LIMIT_EXPLANATION_PER_DAY` | não | 2 / 5 / 20 |
 
-## 3. Deploy das funções
+`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` são injetadas pela plataforma. A `service_role`/`secret key` nunca vai para o browser nem para o Git.
 
-```bash
-supabase functions deploy analyse-learning-profile generate-next-step explain-recommendation
-```
+## Rollback
 
-`supabase/config.toml` define `verify_jwt = false` porque as funções validam o JWT elas próprias (também funciona com chaves publishable). **Depois do primeiro deploy**, fixa a versão do SDK: `runtime.ts` importa `npm:@anthropic-ai/sdk` sem versão porque não a consegui verificar daqui — acrescenta `@<versão>` (e o mesmo para `@supabase/supabase-js`).
+* O Roadmap antigo está em `legacy/index.html` e na tag `roadmap-legacy` (local; `git push origin roadmap-legacy` para a publicar).
+* Voltar atrás: `git revert <commit>` ou `git checkout roadmap-legacy -- index.html sw.js manifest.webmanifest icons`. A migração nunca apaga o `localStorage` antigo e guarda cópia em `legacy_backups`.
+* O novo PWA já não escreve `roadmap-summary.json`; o portfólio mantém o último valor até adotares `docs/PUBLIC-CONTRACT.md`.
 
-## 4. Frontend (GitHub Pages)
-
-Edita `js/config.js` com a Project URL e a chave **publishable** (são públicas por desenho), faz commit e `push`. Não há build. Se o Pages já serve a branch `main` em `/`, basta fazer merge. Na primeira abertura:
-
-1. Entra com o teu email → código.
-2. Definições → define o objetivo e as horas por semana.
-3. Definições → **Importar Roadmap antigo** (revê o resumo antes de confirmar).
-4. Ecrã Agora → **Gerar recomendação**.
-
-## 5. Rollback
-
-* O Roadmap antigo está em `legacy/index.html` (servido em `/roadmap-ia/legacy/`) e na tag `roadmap-legacy` (`git push origin roadmap-legacy` para a publicares — não a empurrei).
-* Para voltar: `git revert <commit-da-migração>` (ou `git checkout roadmap-legacy -- index.html sw.js manifest.webmanifest icons`). O estado antigo do `localStorage` **nunca é apagado** pela migração, e uma cópia integral fica em `legacy_backups`.
-* Dados no Supabase: nada a desfazer; o PWA antigo não os usa.
-* **Atenção ao portfólio:** o novo PWA já não escreve `roadmap-summary.json`. O portfólio continuará a mostrar o último valor (22 %, 5/23, 1/7) até adotares a projeção pública (`docs/PUBLIC-CONTRACT.md`). Isso é intencional (não toquei no bloco `#roadmap` nem em `learning-journey.html`).
-
-## 6. Testes
+## Testes
 
 ```bash
-npm test          # 44 testes: regras, schemas, handlers com fakes, i18n, migração, PWA, contraste
-npm run test:sql  # migration + RLS num Postgres 16 temporário (requer Postgres local e root para criar utilizador)
-npm run test:e2e  # Chromium + Supabase simulado (requer Playwright)
+npm test               # 50 testes unitários (regras, schemas, handlers, i18n, migração, PWA, contraste, versões)
+npm run test:sql       # migration + RLS num Postgres 16 temporário
+npm run test:e2e       # Chromium + Supabase simulado (64 verificações)
+npm run smoke:staging  # TESTE REAL: Supabase de staging + Claude (ver STAGING.md)
 ```

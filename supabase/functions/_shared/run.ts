@@ -24,7 +24,9 @@ export async function callAndCheck<T>(
   let res: LlmResponse;
   try {
     res = await deps.llm.complete({ ...req, schema: toApiSchema(req.schema) });
-  } catch (_e) {
+  } catch (e) {
+    // fica nos logs da função (Dashboard → Edge Functions → Logs) para depurar; o cliente só recebe "llm_unavailable"
+    console.error("llm_error:", String((e as { status?: number })?.status ?? ""), String((e as Error)?.message ?? e).slice(0, 300));
     await deps.port.finishRun(runId, { status: "error", errorCode: "llm_error" });
     throw new HttpError(502, "llm_unavailable");
   }

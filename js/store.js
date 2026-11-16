@@ -13,25 +13,24 @@ const subs = new Set();
 export const subscribe = (fn) => { subs.add(fn); return () => subs.delete(fn); };
 const emit = () => subs.forEach((fn) => fn(S));
 
-const PARTS = {
-  profile: "profiles?select=*",
-  competencies: "competencies?select=*&order=sort_order",
-  evidence: "evidence?select=*&order=occurred_at.desc,created_at.desc",
-  resources: "learning_resources?select=*&order=title",
-  recs: "recommendations?select=*&status=in.(candidate,active,accepted)&order=score.desc",
-  steps: "learning_steps?select=*&order=started_at.desc&limit=20",
-  logs: "learning_step_logs?select=*&order=created_at.desc&limit=50",
-  assessments: "competency_assessments?select=*&state=eq.suggested&order=created_at.desc",
-  runs: "analysis_runs?select=kind,status,cost_usd,created_at&order=created_at.desc&limit=60",
-};
+// [chave do estado, tabela, colunas, refinamento da query]
+const PARTS = [
+  ["competencies", "competencies", "*", (q) => q.order("sort_order")],
+  ["evidence", "evidence", "*", (q) => q.order("occurred_at", { ascending: false }).order("created_at", { ascending: false })],
+  ["resources", "learning_resources", "*", (q) => q.order("title")],
+  ["recs", "recommendations", "*", (q) => q.in("status", ["candidate", "active", "accepted"]).order("score", { ascending: false })],
+  ["steps", "learning_steps", "*", (q) => q.order("started_at", { ascending: false }).limit(20)],
+  ["logs", "learning_step_logs", "*", (q) => q.order("created_at", { ascending: false }).limit(50)],
+  ["assessments", "competency_assessments", "*", (q) => q.eq("state", "suggested").order("created_at", { ascending: false })],
+  ["runs", "analysis_runs", "kind,status,cost_usd,created_at", (q) => q.order("created_at", { ascending: false }).limit(60)],
+];
 
 export async function loadAll() {
   try {
-    let profile = (await api.select("profiles", "select=*"))[0];
-    if (!profile) { await api.rpc("bootstrap_owner"); profile = (await api.select("profiles", "select=*"))[0]; }
-    const keys = Object.keys(PARTS).filter((k) => k !== "profile");
-    const res = await Promise.all(keys.map((k) => { const [tbl, q] = PARTS[k].split("?"); return api.select(tbl, q); }));
-    S.profile = profile; keys.forEach((k, i) => { S[k] = res[i]; });
+    let profile = (await api.query("profiles"))[0];
+    if (!profile) { await api.rpc("bootstrap_owner"); profile = (await api.query("profiles"))[0]; }
+    const res = await Promise.all(PARTS.map(([, table, cols, refine]) => api.query(table, cols, refine)));
+    S.profile = profile; PARTS.forEach(([key], i) => { S[key] = res[i]; });
     S.offline = false; S.syncedAt = new Date().toISOString(); S.loaded = true;
     snapshotSave();
   } catch (e) {
@@ -83,8 +82,8 @@ export function usageToday() {
 }
 
 /* ── perfil / competências ── */
-export const saveProfile = (patch) => mutate(() => api.update("profiles", `id=eq.${S.profile.id}`, patch));
-export const updateCompetency = (slug, patch) => mutate(() => api.update("competencies", `slug=eq.${slug}`, patch));
+export const saveProfile = (patch) => mutate(() => api.update("profiles", { id: S.profile.id }, patch));
+export const updateCompetency = (slug, patch) => mutate(() => api.update("competencies", { slug }, patch));
 export const setFocus = (slug) => mutate(() => api.rpc("set_current_focus", { p_slug: slug }));
 export const correctAssessment = (slug, status, confidence) => mutate(() => api.rpc("correct_assessment", { p_slug: slug, p_status: status, p_confidence: confidence }));
 export const acceptAssessment = (id) => mutate(() => api.rpc("accept_assessment", { p_id: id }));
@@ -97,11 +96,11 @@ const cleanEvidence = (e) => {
   return row;
 };
 export const addEvidence = (e) => mutate(() => api.insert("evidence", { ...cleanEvidence(e), user_id: S.profile.id }));
-export const updateEvidence = (id, patch) => mutate(() => api.update("evidence", `id=eq.${id}`, cleanEvidence(patch)));
-export const deleteEvidence = (id) => mutate(() => api.remove("evidence", `id=eq.${id}`));
+export const updateEvidence = (id, patch) => mutate(() => api.update("evidence", { id }, cleanEvidence(patch)));
+export const deleteEvidence = (id) => mutate(() => api.remove("evidence", { id }));
 export const completeResource = (r, competencyId) => mutate(async () => {
   const when = new Date();
-  await api.update("learning_resources", `id=eq.${r.id}`, { status: "completed", completed_at: when.toISOString() });
+  await api.update("learning_resources", { id: r.id }, { status: "completed", completed_at: when.toISOString() });
   if (competencyId) {
     await api.upsert("evidence", [{ user_id: S.profile.id, competency_id: competencyId, evidence_type: "course", title_pt: `Curso concluído: ${r.title}`,
       title_en: `Course completed: ${r.title}`, occurred_at: when.toISOString().slice(0, 10), learning_resource_id: r.id, source_key: `resource:${r.id}` }], "user_id,source_key");
@@ -134,7 +133,7 @@ export const applyMigration = (parsed, plan) => mutate(async () => {
   await api.insert("legacy_backups", { user_id: S.profile.id, payload: { ...parsed.original, _migratedAt: new Date().toISOString() } });
   const uid = S.profile.id;
   if (plan.resources.length) await api.upsert("learning_resources", plan.resources.map((r) => ({ ...r, user_id: uid })), "user_id,legacy_id");
-  const res = await api.select("learning_resources", "select=id,legacy_id&legacy_id=not.is.null");
+  const res = await api.query("learning_resources", "id,legacy_id", (q) => q.not("legacy_id", "is", null));
   const byLegacy = new Map(res.map((r) => [r.legacy_id, r.id]));
   const comps = new Map(S.competencies.map((c) => [c.slug, c.id]));
   const rows = plan.evidence.map((e) => ({
@@ -142,6 +141,6 @@ export const applyMigration = (parsed, plan) => mutate(async () => {
     occurred_at: e.occurred_at, visibility: "private", share_with_ai: false, source_key: e.source_key, learning_resource_id: byLegacy.get(e.resourceLegacyId) || null,
   })).filter((r) => r.competency_id);
   if (rows.length) await api.upsert("evidence", rows, "user_id,source_key");
-  await api.update("profiles", `id=eq.${uid}`, { legacy_migrated_at: new Date().toISOString() });
+  await api.update("profiles", { id: uid }, { legacy_migrated_at: new Date().toISOString() });
 });
 export { planMigration };

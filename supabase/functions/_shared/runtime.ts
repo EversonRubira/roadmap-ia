@@ -1,7 +1,8 @@
 // Ligação ao mundo real (Deno / Supabase Edge Functions). Não é importado pelos testes.
 // @ts-nocheck — tipos de npm:/Deno resolvidos em runtime pelo Supabase.
-import { createClient } from "npm:@supabase/supabase-js@2";
-import Anthropic from "npm:@anthropic-ai/sdk";          // fixar a versão após o primeiro deploy (ver docs/DEPLOY.md)
+// Versões fixas (sem ^ nem ranges): o mesmo supabase-js que está vendorizado em js/vendor/. Um teste verifica a coerência.
+import { createClient } from "npm:@supabase/supabase-js@2.119.0";
+import Anthropic from "npm:@anthropic-ai/sdk@1.8.0";
 import { corsHeaders, errorResponse, json, readBody } from "./http.ts";
 import { HttpError, QuotaError } from "./ports.ts";
 import type { Deps, Llm, Port, RecRow, Lang } from "./ports.ts";

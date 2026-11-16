@@ -27,7 +27,7 @@ const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, lo
 await ctx.route("https://fonts.googleapis.com/**", (r) => r.fulfill({ status: 200, contentType: "text/css", body: "" }));
 await ctx.route("https://fonts.gstatic.com/**", (r) => r.fulfill({ status: 200, body: "" }));
 await ctx.route("**/js/config.js", (r) => r.fulfill({ status: 200, contentType: "text/javascript",
-  body: 'export const CONFIG={SUPABASE_URL:"https://mock.supabase.co",SUPABASE_PUBLISHABLE_KEY:"sb_publishable_test_key_1234567890",APP_VERSION:"2.0.0"};export const isConfigured=()=>true;' }));
+  body: 'export const CONFIG={SUPABASE_URL:"https://mock.supabase.co",SUPABASE_PUBLISHABLE_KEY:"sb_publishable_test_key_1234567890",APP_VERSION:"2.1.0"};export const isConfigured=()=>true;' }));
 await ctx.route("https://mock.supabase.co/**", async (route) => {
   const req = route.request(); const u = new URL(req.url());
   seen.push(`${req.method()} ${u.pathname}`);
@@ -213,6 +213,28 @@ for (const scheme of ["light", "dark"]) {
 }
 const small = await page.evaluate(() => [...document.querySelectorAll("button,a,input,select,textarea,summary")].filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && (r.height < 43.5) && !e.closest("[hidden]"); }).map((e) => e.tagName + ":" + (e.textContent || e.name || "").slice(0, 20)));
 ok(small.length === 0, "alvos de toque >= 44 px", small.join(", "));
+
+console.log("15b. Sessão expirada (401 do servidor)");
+await page.goto(BASE + "#/now"); await page.getByRole("link", { name: "Now" }).waitFor(); await page.waitForTimeout(300);
+be.q.unauth = true;
+if (await page.getByRole("button", { name: "Generate recommendation" }).count()) await click("Generate recommendation");
+else { await page.getByRole("button", { name: "Update recommendation" }).or(page.getByRole("button", { name: "I already know this" })).first().click(); }
+await page.getByRole("heading", { name: "Sign in" }).waitFor();
+ok((await text()).toLowerCase().includes("session expired"), "401 mostra 'Sessão expirada' e pede novo login");
+ok(await page.locator("#nav").isHidden(), "dados privados escondidos após expirar");
+be.q.unauth = false;
+await page.getByLabel("Email", { exact: true }).fill("dono@example.com"); await click("Send code");
+await page.getByLabel("Code received by email").fill("123456"); await click("Sign in");
+await page.locator("#nav").waitFor(); ok(true, "novo login recupera a app");
+
+console.log("16. Sessão: persistência pelo SDK e terminar sessão");
+await page.goto(BASE + "#/now"); await page.getByRole("link", { name: "Now" }).waitFor();
+ok(await page.evaluate(() => { const v = JSON.parse(localStorage.getItem("lj-auth") || "null"); return !!(v && v.access_token && v.refresh_token); }), "sessão guardada pelo supabase-js (lj-auth)");
+await page.locator("#btn-settings").click(); await page.getByRole("dialog").getByRole("button", { name: "Sign out" }).click();
+await page.getByRole("heading", { name: "Sign in" }).waitFor();
+ok(await page.evaluate(() => !localStorage.getItem("lj-auth") && !localStorage.getItem("lj-snapshot-v1")), "terminar sessão apaga sessão e snapshot locais");
+ok(!(await text()).includes("Session expired"), "terminar sessão não é tratado como sessão expirada");
+ok(await page.locator("#nav").isHidden(), "navegação escondida depois de sair");
 
 await browser.close(); server.close();
 console.log(`\n${pass} ok, ${fail} falhas`);

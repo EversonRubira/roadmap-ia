@@ -4,6 +4,6 @@
 export const CONFIG = {
   SUPABASE_URL: "",              // ex.: https://abcdefgh.supabase.co
   SUPABASE_PUBLISHABLE_KEY: "",  // ex.: sb_publishable_...
-  APP_VERSION: "2.0.0",
+  APP_VERSION: "2.1.0",
 };
 export const isConfigured = () => /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(CONFIG.SUPABASE_URL) && CONFIG.SUPABASE_PUBLISHABLE_KEY.length > 20;

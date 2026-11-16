@@ -6,6 +6,7 @@ Projetos fornecem evidências, cursos preenchem lacunas reais e a IA ajuda a esc
 URL: https://eversonrubira.github.io/roadmap-ia/ · Roadmap antigo: [`legacy/`](legacy/index.html) e tag `roadmap-legacy`.
 
 * [Arquitetura e diagnóstico](docs/ARCHITECTURE.md)
+* **[Staging: guia passo a passo (Supabase + Claude + telemóvel)](docs/STAGING.md)**
 * [Deploy, secrets e rollback](docs/DEPLOY.md)
 * [Segurança](docs/SECURITY.md) · [PWA](docs/PWA-CHECKLIST.md) · [Contrato público](docs/PUBLIC-CONTRACT.md)
 

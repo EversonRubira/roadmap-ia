@@ -38,7 +38,7 @@ export async function generateNextStep(deps: Deps, body: { language: Lang; repla
     const catalog = resources.filter((r) => r.status === "available").map((r) => ({ title: r.title, provider: r.provider, url: r.url }));
 
     const { value, res } = await callAndCheck(deps, runId,
-      { ...p, schema: RECOMMENDATION_SCHEMA, maxTokens: 3000, effort: "medium" },
+      { ...p, schema: RECOMMENDATION_SCHEMA, maxTokens: 8000, effort: "medium" },
       (j) => checkRecommendation(j, {
         candidates: top.map((t) => ({ id: t.id, slug: t.slug, kind: t.kind })), resources: catalog, language: body.language,
       }));

@@ -36,5 +36,5 @@ test("manifest preserva id, start_url, scope e ícones (instalação existente)"
 test("rotas e caminhos são relativos (GitHub Pages em /roadmap-ia/)", () => {
   const html = readFileSync("index.html", "utf8");
   assert.ok(!/(?:href|src)="\/(?!\/)/.test(html), "caminho absoluto no index.html");
-  for (const f of walk("js").filter((x) => x.endsWith(".js"))) assert.ok(!/from "\/[^/]/.test(readFileSync(f, "utf8")), f);
+  for (const f of walk("js").filter((x) => x.endsWith(".js") && !x.includes("vendor"))) assert.ok(!/from "\/[^/]/.test(readFileSync(f, "utf8")), f);
 });

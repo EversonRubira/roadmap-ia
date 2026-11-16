@@ -2,6 +2,10 @@ import type { JsonSchema } from "./schemas.ts";
 
 /** Validador mínimo de JSON Schema (o subconjunto usado em schemas.ts). Devolve lista de erros; vazia = válido. */
 export function validate(schema: JsonSchema, value: unknown, path = "$"): string[] {
+  if (schema.anyOf) {
+    const attempts = schema.anyOf.map((alt) => validate(alt, value, path));
+    return attempts.some((e) => e.length === 0) ? [] : [`${path}: não corresponde a nenhuma alternativa`];
+  }
   const errors: string[] = [];
   const types = Array.isArray(schema.type) ? schema.type : schema.type ? [schema.type] : [];
   const actual = typeOf(value);

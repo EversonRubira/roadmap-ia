@@ -112,54 +112,19 @@ select count(*) from information_schema.tables where table_schema = 'public' and
 1. Menu esquerdo → **Authentication** → **Users**.
 2. Clica **Add user** → **Create new user**.
 3. **Email:** o **mesmo email com que fizeste a conta Supabase** (importante: o envio de emails de teste só funciona para membros do projeto, ver passo 5).
-4. **Password:** põe uma palavra-passe longa qualquer (nunca a vais usar; o login é por código).
+4. **Password:** põe uma palavra-passe longa qualquer (é a que usas para entrar na app).
 5. Marca **Auto Confirm User**. Clica **Create user**.
 
 ✅ **Como confirmar:** o utilizador aparece na lista de *Users* com o teu email.
 
 ---
 
-## 5. Configurar a autenticação (3 coisas: sign-ups, código por email, template)
+## 5. Configurar a autenticação (email + password)
 
-### 5.1 Desligar novos registos (muito importante)
+O login usa **email + password** (não precisa de email transacional nem de SMTP).
 
-**Authentication** → **Sign In / Providers** (em versões antigas: **Providers**) → bloco **User Signups** ou o fornecedor **Email**:
-
-* Desliga **Allow new users to sign up**. Clica **Save**.
-
-✅ Fica desligado depois de recarregares a página. (Assim ninguém além de ti consegue criar conta. Mesmo que ligasse, a base de dados só aceita um dono.)
-
-### 5.2 Email ligado e código de 6 dígitos
-
-Na mesma página → **Email** → deve estar **Enable Email provider** ligado. Deixa **Email OTP Length = 6** (valor por omissão) e **Email OTP Expiration** como está. Desliga **Confirm email** se existir (não interfere, o utilizador já está confirmado).
-
-### 5.3 Template do email: tem de mostrar o código
-
-O email por omissão só tem um link; a app precisa do **código**.
-
-**Authentication** → **Emails** (em versões antigas: **Email Templates**) → separador **Magic link** (ou *Magic Link*):
-
-* **Subject:** `O teu código de acesso`
-* **Message body** (apaga o que lá está e cola):
-
-```html
-<h2>Learning Journey</h2>
-<p>O teu código de acesso:</p>
-<p style="font-size:28px;letter-spacing:6px"><strong>{{ .Token }}</strong></p>
-<p>Se não pediste este código, ignora este email.</p>
-```
-
-Clica **Save**.
-
-✅ **Como confirmar:** o *Preview* mostra um número grande (o `{{ .Token }}`). **O `{{ .Token }}` tem de estar lá**; sem ele, não há código.
-
-### 5.4 URL do site (opcional mas recomendado)
-
-**Authentication** → **URL Configuration** → **Site URL:** `https://eversonrubira.github.io/roadmap-ia/` → **Save**.
-
-> **Limite de emails:** o servidor de email grátis do Supabase envia **poucos emails por hora** e **só para membros da organização do projeto**. Por isso o email do passo 4 tem de ser o teu. Se vires "rate limit exceeded", espera uma hora ou usa o teste com `SUPABASE_SECRET_KEY` (passo 8), que não envia email.
-
----
+1. **Authentication → Sign In / Providers**: desliga **Allow new users to sign up** → **Save**. ✅ Continua desligado depois de recarregares.
+2. **Utilizador com password conhecida:** em **Authentication → Users**, se o utilizador foi criado com uma password que não guardaste, apaga-o (menu ⋯ → Delete) e cria outro com **Add user → Create new user**, **Auto Confirm User** marcado, e uma password longa **guardada no teu gestor de passwords**.
 
 ## 6. Criar a chave da Claude API e guardá-la (ANTHROPIC_API_KEY)
 
@@ -231,7 +196,7 @@ Define as variáveis **no terminal** (não ficam em nenhum ficheiro). Troca os v
 export SUPABASE_URL="https://XXXXXXXX.supabase.co"
 export SUPABASE_PUBLISHABLE_KEY="sb_publishable_..."
 export OWNER_EMAIL="o-teu-email@exemplo.com"
-export SUPABASE_SECRET_KEY="sb_secret_..."
+export OWNER_PASSWORD="a-tua-password"
 node scripts/staging-smoke.mjs
 ```
 
@@ -241,11 +206,10 @@ node scripts/staging-smoke.mjs
 $env:SUPABASE_URL="https://XXXXXXXX.supabase.co"
 $env:SUPABASE_PUBLISHABLE_KEY="sb_publishable_..."
 $env:OWNER_EMAIL="o-teu-email@exemplo.com"
-$env:SUPABASE_SECRET_KEY="sb_secret_..."
+$env:OWNER_PASSWORD="a-tua-password"
 node scripts/staging-smoke.mjs
 ```
 
-(Sem `SUPABASE_SECRET_KEY`: corre sem ela, espera o email com o código de 6 dígitos e volta a correr com `OTP_CODE=123456`.)
 
 Opções: `--full` (testa também a análise completa, +1 chamada à Claude), `--both-languages` (gera também em inglês, +1 chamada), `--language=en-GB`.
 
@@ -265,9 +229,7 @@ No painel → **Table Editor** → `analysis_runs`: uma linha `generation` com `
 | Sintoma | Causa provável | O que fazer |
 |---|---|---|
 | `Signups not allowed for otp` | email com erro de escrita / utilizador não criado | repete o passo 4 com o email exato |
-| `Error sending magic link email` / rate limit | limite do email grátis | usa `SUPABASE_SECRET_KEY` (não envia email) |
-| `código de login gerado (admin)` falha | a chave secret não serve para gerar códigos | apaga `SUPABASE_SECRET_KEY`, corre o script, copia o código do email e volta a correr com `OTP_CODE=…` |
-| código inválido | template sem `{{ .Token }}` ou código expirado | passo 5.3 |
+| `Email ou password incorretos` | password diferente da do utilizador | recria o utilizador (passo 5.2) |
 | `function … invalid_token` logo no login | `SUPABASE_URL` com `/` a mais ou chave trocada | confirma os 3 valores do passo 1 |
 | `internal_error` | falta secret ou migration | `npx supabase@latest secrets list`; passo 3 |
 | `llm_unavailable` | chave Anthropic inválida, sem créditos ou modelo sem acesso | painel → Edge Functions → `generate-next-step` → **Logs**: a linha `llm_error: 401/402/404 …` diz qual; define `CLAUDE_MODEL=claude-sonnet-5-5` se for o modelo |
@@ -303,7 +265,7 @@ python3 -m http.server 8000
 
 ### 9.3 Percorrer a app
 
-1. Escreve o teu email → **Enviar código** → copia o código de 6 dígitos do email → **Entrar**. ✅ Aparece o ecrã **Agora** com "Ainda sem recomendação" e a navegação em baixo.
+1. Escreve o teu email e a password → **Entrar**. ✅ Aparece o ecrã **Agora** com "Ainda sem recomendação" e a navegação em baixo.
 2. Canto superior direito → ícone de definições → escreve o **Objetivo profissional** e as **horas por semana** → **Guardar**.
 3. Definições → **Importar Roadmap antigo**. Como o localhost é outra "origem", não encontra o progresso antigo. Faz assim: abre numa nova aba `https://eversonrubira.github.io/roadmap-ia/` (ainda é a app antiga) → *Backup do progresso* → **Copiar backup** → volta ao novo → **Colar backup** → **Rever** → confirma o resumo → **Importar**. ✅ "Importação concluída." e, no painel, `learning_resources` com ~50 linhas e `legacy_backups` com 1.
 4. Ecrã **Agora** → **Gerar recomendação**. ✅ Em poucos segundos aparece **PRÓXIMA ETAPA** com título, motivo, esforço e evidência esperada.
@@ -340,7 +302,7 @@ Painel Supabase → **Edge Functions → Secrets** → edita `ALLOWED_ORIGINS` p
 ### 10.3 Abrir no telemóvel
 
 1. No telemóvel, abre o endereço do túnel. ✅ Vês **Entrar**.
-2. Faz login com o código por email (iPhone: o teclado sugere o código vindo do email).
+2. Faz login com email e password.
 3. **Gerar recomendação**. ✅ Aparece uma recomendação. (Se vires "Sem ligação" ou erro: confirma o passo 10.2.)
 4. **Instalar:** iPhone → botão Partilhar → **Adicionar ao ecrã principal**. Android/Chrome → menu ⋮ → **Instalar aplicação**. ✅ Abre em ecrã inteiro, sem barra do browser.
 5. **Offline:** com a app aberta e já carregada, ativa o **modo avião** e abre a app. ✅ Mostra os dados com a faixa **Offline · Últimos dados sincronizados em …** e os botões de ação ficam desativados (nada parece guardado sem ligação).
@@ -351,7 +313,7 @@ Painel Supabase → **Edge Functions → Secrets** → edita `ALLOWED_ORIGINS` p
 
 ### 10.4 Lista de verificação final
 
-- [ ] Login por código no telemóvel
+- [ ] Login por email + password no telemóvel
 - [ ] Recomendação gerada na Claude, em PT e em EN
 - [ ] Acesso sem sessão a `https://XXXXXXXX.supabase.co/rest/v1/evidence` (com `apikey`) devolve erro (nada legível)
 - [ ] Offline mostra a faixa e não deixa gravar

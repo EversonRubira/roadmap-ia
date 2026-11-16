@@ -34,5 +34,5 @@ test("nenhum import npm: sem versão exata (x.y.z)", () => {
 test("frontend usa o SDK oficial: nenhum fetch manual a /auth/v1 ou /rest/v1", () => {
   const api = read("js/api.js").replace(/(^|\s)\/\/.*$/gm, "");
   assert.ok(!/\/auth\/v1|\/rest\/v1|\bfetch\(/.test(api));
-  assert.ok(/signInWithOtp/.test(api) && /verifyOtp/.test(api) && /autoRefreshToken: true/.test(api) && /persistSession: true/.test(api));
+  assert.ok(/signInWithPassword/.test(api) && /autoRefreshToken: true/.test(api) && /persistSession: true/.test(api));
 });

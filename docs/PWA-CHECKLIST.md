@@ -14,7 +14,7 @@ Automático (`npm test`, `npm run test:e2e`):
 Manual no telemóvel (não consigo fazê-lo daqui):
 
 - [ ] Abrir a PWA já instalada → deve atualizar e recarregar sozinha para o Learning Journey (pode ser preciso abrir duas vezes se o sistema atrasar o service worker novo)
-- [ ] Login por código no telemóvel (iOS: o teclado deve sugerir o código do email)
+- [ ] Login por email + password no telemóvel
 - [ ] Modo avião: abre com dados em cache e banner Offline
 - [ ] Ícone/nome no ecrã inicial: o nome instalado pode manter "Roadmap IA" até reinstalares
 - [ ] Leitor de ecrã (VoiceOver/TalkBack): anúncios de "A escolher a próxima etapa…" e erros via região `aria-live`

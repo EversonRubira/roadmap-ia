@@ -1,5 +1,5 @@
 // Camada fina sobre o @supabase/supabase-js oficial (v2.119.0, vendorizado em js/vendor/).
-// Auth (código por email), sessão persistente com refresh automático, PostgREST e Edge Functions
+// Auth (email + password), sessão persistente com refresh automático, PostgREST e Edge Functions
 // passam todos pelo SDK. Este módulo só: (1) mantém a interface usada pelo resto da app e
 // (2) converte erros do SDK em ApiError/OfflineError com códigos curtos (nunca mensagens do servidor).
 import { CONFIG } from "./config.js";
@@ -55,13 +55,9 @@ function unwrap(res) {
   return res.data;
 }
 
-/* ── Auth ── */
-export async function requestCode(email) {
-  const { error } = await sb().auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
-  if (error) fail(error);
-}
-export async function verifyCode(email, token) {
-  const { data, error } = await sb().auth.verifyOtp({ email, token, type: "email" });
+/* ── Auth (email + password; sem registos novos: só o utilizador criado no painel) ── */
+export async function signIn(email, password) {
+  const { data, error } = await sb().auth.signInWithPassword({ email, password });
   if (error) fail(error);
   current = data.session;
 }

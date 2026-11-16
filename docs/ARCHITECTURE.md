@@ -21,14 +21,14 @@ Dois riscos do legado, resolvidos ou documentados:
 ## Visão geral
 
 ```
-PWA (GitHub Pages, /roadmap-ia/)  ──JWT──►  Supabase Auth (código por email)
+PWA (GitHub Pages, /roadmap-ia/)  ──JWT──►  Supabase Auth (email + password)
         │                                    Supabase Postgres (RLS)  ◄── fonte única de verdade
         └── Edge Functions (valida JWT) ──►  Claude API (ANTHROPIC_API_KEY só aqui)
                                              public_journey (view)  ──►  Portfólio / learning-journey.html (anon, só leitura)
 ```
 
-* Frontend: ES modules nativos, **sem build e sem dependências**. **`@supabase/supabase-js` oficial, versão fixa 2.119.0, vendorizado** em `js/vendor/` (sem CDN, compatível com a CSP `script-src 'self'`, guardado pelo service worker; SHA-256 verificado por teste). Trata Auth (código por email), sessão persistente (`localStorage["lj-auth"]`), refresh automático, PostgREST e Edge Functions. `js/api.js` é só uma camada fina que mantém a interface da app e converte erros do SDK em códigos curtos. Todo o DOM é criado com `textContent` (`js/dom.js`); não existe `innerHTML`, por isso texto devolvido pelo modelo nunca é interpretado como HTML (um teste garante-o).
-* Login: **código de 6 dígitos por email**, não magic link. Um magic link abre no browser, não na PWA instalada (sobretudo iOS) e a sessão ficaria no sítio errado.
+* Frontend: ES modules nativos, **sem build e sem dependências**. **`@supabase/supabase-js` oficial, versão fixa 2.119.0, vendorizado** em `js/vendor/` (sem CDN, compatível com a CSP `script-src 'self'`, guardado pelo service worker; SHA-256 verificado por teste). Trata Auth (email + password), sessão persistente (`localStorage["lj-auth"]`), refresh automático, PostgREST e Edge Functions. `js/api.js` é só uma camada fina que mantém a interface da app e converte erros do SDK em códigos curtos. Todo o DOM é criado com `textContent` (`js/dom.js`); não existe `innerHTML`, por isso texto devolvido pelo modelo nunca é interpretado como HTML (um teste garante-o).
+* Login: **email + password** (sem registos novos; um só utilizador criado no painel). Escolhido em vez de código/magic link para não depender de SMTP e porque o magic link abre no browser, não na PWA instalada.
 * Estado: `js/store.js`. Nenhuma alteração aparece como guardada antes de o servidor responder; offline só lê.
 
 ## Modelo de dados (`supabase/migrations/20261116000000_learning_journey.sql`)

@@ -13,9 +13,8 @@ export default {
   "setup.body": "Preenche SUPABASE_URL e SUPABASE_PUBLISHABLE_KEY em js/config.js (ver docs/DEPLOY.md). Estes valores são públicos; nunca coloques aqui chaves secretas.",
 
   "login.eyebrow": "Acesso privado", "login.expired": "Sessão expirada", "login.title": "Entrar",
-  "login.body": "Esta área é pessoal. Enviamos um código para o teu email; não existe password.",
-  "login.email": "Email", "login.code": "Código recebido por email", "login.send": "Enviar código", "login.verify": "Entrar",
-  "login.sent": "Código enviado. Verifica o teu email.", "login.sendFailed": "Não foi possível enviar o código.", "login.verifyFailed": "Código inválido ou expirado.",
+  "login.body": "Esta área é pessoal. Entra com o teu email e password.",
+  "login.email": "Email", "login.password": "Password", "login.signIn": "Entrar", "login.failed": "Email ou password incorretos.",
 
   "now.next.eyebrow": "Próxima etapa", "now.progress.eyebrow": "Em andamento",
   "now.noRec.eyebrow": "Agora", "now.noRec.title": "Ainda sem recomendação",

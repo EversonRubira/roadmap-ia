@@ -51,12 +51,11 @@ ok(await page.locator("#btn-settings").isHidden(), "definições escondidas sem 
 ok(!(await text()).includes("Aceitar etapa"), "nenhuma ação de edição visível");
 ok(!seen.some((s) => s.includes("/rest/v1/")), "nenhum pedido de dados antes do login");
 
-console.log("2. Login por código");
-await page.getByLabel("Email", { exact: true }).fill("dono@example.com"); await click("Enviar código");
-await page.getByLabel("Código recebido por email").fill("000000"); await click("Entrar");
-await page.getByText("Código inválido ou expirado.").waitFor();
-ok(true, "código errado é recusado");
-await page.getByLabel("Código recebido por email").fill("123456"); await click("Entrar");
+console.log("2. Login por email + password");
+await page.getByLabel("Email", { exact: true }).fill("dono@example.com"); await page.getByLabel("Password").fill("errada"); await click("Entrar");
+await page.getByText("Email ou password incorretos.").waitFor();
+ok(true, "password errada é recusada");
+await page.getByLabel("Password").fill("pw-correta"); await click("Entrar");
 await page.getByRole("heading", { name: "Ainda sem recomendação" }).waitFor();
 ok(await page.locator("#nav").isVisible(), "navegação com 4 destinos");
 ok((await page.locator("#nav a").allInnerTexts()).join("|") === "Agora|Competências|Evidências|Percurso", "nav em PT");
@@ -223,8 +222,7 @@ await page.getByRole("heading", { name: "Sign in" }).waitFor();
 ok((await text()).toLowerCase().includes("session expired"), "401 mostra 'Sessão expirada' e pede novo login");
 ok(await page.locator("#nav").isHidden(), "dados privados escondidos após expirar");
 be.q.unauth = false;
-await page.getByLabel("Email", { exact: true }).fill("dono@example.com"); await click("Send code");
-await page.getByLabel("Code received by email").fill("123456"); await click("Sign in");
+await page.getByLabel("Email", { exact: true }).fill("dono@example.com"); await page.getByLabel("Password").fill("pw-correta"); await click("Sign in");
 await page.locator("#nav").waitFor(); ok(true, "novo login recupera a app");
 
 console.log("16. Sessão: persistência pelo SDK e terminar sessão");

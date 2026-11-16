@@ -3,11 +3,9 @@
 // Não instala nada: usa o supabase-js vendorizado. Nunca guarda chaves em ficheiros.
 //
 //   SUPABASE_URL=https://xxxx.supabase.co SUPABASE_PUBLISHABLE_KEY=sb_publishable_... OWNER_EMAIL=tu@email.com \
-//   SUPABASE_SECRET_KEY=...  node scripts/staging-smoke.mjs [--full] [--both-languages] [--language=pt-PT|en-GB]
+//   OWNER_PASSWORD=... node scripts/staging-smoke.mjs [--full] [--both-languages] [--language=pt-PT|en-GB]
 //
-// Autenticação (uma destas):
-//   SUPABASE_SECRET_KEY  -> gera o código de login sem email (só neste terminal; é a chave "secret"/service_role)
-//   OTP_CODE             -> código de 6 dígitos recebido por email (corre primeiro sem ele para o pedir)
+// Login: OWNER_EMAIL + OWNER_PASSWORD (o utilizador criado no painel do Supabase). Sem chaves secretas.
 // Custo típico: 2 chamadas à Claude (≈ alguns cêntimos). --full +1, --both-languages +1.
 import { readFileSync } from "node:fs";
 import https from "node:https";
@@ -16,8 +14,8 @@ const env = (k) => process.env[k] || "";
 const flag = (f) => process.argv.includes(f);
 const LANG = (process.argv.find((a) => a.startsWith("--language=")) || "--language=pt-PT").split("=")[1];
 const URL_ = env("SUPABASE_URL").replace(/\/$/, ""), KEY = env("SUPABASE_PUBLISHABLE_KEY"), EMAIL = env("OWNER_EMAIL");
-if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(URL_) || !KEY || !EMAIL) {
-  console.error("Faltam variáveis: SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, OWNER_EMAIL (ver o cabeçalho deste ficheiro).");
+if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(URL_) || !KEY || !EMAIL || !env("OWNER_PASSWORD")) {
+  console.error("Faltam variáveis: SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, OWNER_EMAIL, OWNER_PASSWORD (ver o cabeçalho deste ficheiro).");
   process.exit(2);
 }
 const code = readFileSync(new URL("../js/vendor/supabase-js-2.119.0.umd.js", import.meta.url), "utf8");
@@ -47,23 +45,13 @@ const anon = createClient(URL_, KEY, opts("anon"));
   ok((await fnErr(f.error)) === "invalid_token", "função recusa pedido sem utilizador autenticado", await fnErr(f.error));
 }
 
-console.log("2. Login");
+console.log("2. Login (email + password)");
 const me = createClient(URL_, KEY, opts("me"));
-let token = env("OTP_CODE");
-if (!token && env("SUPABASE_SECRET_KEY")) {
-  const admin = createClient(URL_, env("SUPABASE_SECRET_KEY"), opts("admin"));
-  const { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email: EMAIL });
-  must(!error && data?.properties?.email_otp, "código de login gerado (admin)", error?.message);
-  token = data.properties.email_otp;
-}
-if (!token) {
-  const r = await me.auth.signInWithOtp({ email: EMAIL, options: { shouldCreateUser: false } });
-  console.log(r.error ? `  ✗ não foi possível pedir o código: ${r.error.message}` : "  → Código enviado por email. Volta a correr com OTP_CODE=123456 node scripts/staging-smoke.mjs");
-  process.exit(r.error ? 1 : 2);
-}
 {
-  const { data, error } = await me.auth.verifyOtp({ email: EMAIL, token, type: "email" });
-  must(!error && data?.session, "sessão iniciada com o código", error?.message);
+  const { data, error } = await me.auth.signInWithPassword({ email: EMAIL, password: env("OWNER_PASSWORD") });
+  must(!error && data?.session, "sessão iniciada com email + password", error?.message);
+  const bad = await createClient(URL_, KEY, opts("bad")).auth.signInWithPassword({ email: EMAIL, password: "password-errada-xyz" });
+  ok(!!bad.error, "password errada é recusada");
 }
 
 console.log("3. Dono: perfil e competências");

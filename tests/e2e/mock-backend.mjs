@@ -35,8 +35,8 @@ export function createBackend() {
   function handle(method, path, query, body) {
     if (q.unauth && path.startsWith("/functions/")) return [401, { error: { code: "invalid_token" } }];
     if (q.fail && path.includes(q.fail)) return [500, { error: { code: "internal_error" } }];
-    if (path === "/auth/v1/otp") return [200, {}];
-    if (path === "/auth/v1/verify") return body.token === "123456" ? [200, sessionBody(uid, body.email)] : [403, { code: 403, error_code: "otp_expired", msg: "Token has expired or is invalid" }];
+    if (path === "/auth/v1/token" && query.get("grant_type") === "password")
+      return body.password === "pw-correta" ? [200, sessionBody(uid, body.email)] : [400, { code: 400, error_code: "invalid_credentials", msg: "Invalid login credentials" }];
     if (path === "/auth/v1/logout") return [204, null];
     if (path === "/auth/v1/token") return [200, sessionBody(uid, "dono@example.com")];
     if (path === "/rest/v1/public_journey") return [200, [{ contract_version: 1, applied_competencies: db.competencies.filter((c) => c.is_public && c.status === "applied"), public_evidence: db.evidence.filter((e) => e.visibility === "public"), last_updated_at: new Date().toISOString() }]];

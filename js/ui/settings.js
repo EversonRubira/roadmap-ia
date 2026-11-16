@@ -5,7 +5,7 @@ import { S } from "../store.js";
 import * as api from "../api.js";
 import { LEGACY_KEY, LEGACY_TOKEN_KEY } from "../legacy-catalog.js";
 import { parseLegacy, planMigration } from "../migration.js";
-import { btn, field, openSheet, run, announce } from "./common.js";
+import { btn, field, openSheet, run } from "./common.js";
 import { CONFIG } from "../config.js";
 
 export function openSettings() {
@@ -83,26 +83,20 @@ function migrationSheet() {
   });
 }
 
-/* ── Login por código de email (funciona na PWA instalada, ao contrário do magic link) ── */
+/* ── Login por email + password (sem email transacional; a sessão fica guardada pelo SDK) ── */
 export function renderLogin({ expired = false } = {}) {
-  const email = h("input", { type: "email", autocomplete: "email", inputmode: "email", required: true, id: "email" });
-  const code = h("input", { type: "text", inputmode: "numeric", autocomplete: "one-time-code", pattern: "[0-9]{6,8}", id: "code", required: true });
+  const email = h("input", { type: "email", autocomplete: "username", inputmode: "email", required: true, id: "email" });
+  const pass = h("input", { type: "password", autocomplete: "current-password", required: true, id: "password" });
   const msg = h("p", { class: "error", role: "alert" });
-  const step2 = h("div", { hidden: true }, field(t("login.code"), code), h("div", { class: "actions" }, h("button", { type: "submit", class: "btn primary" }, t("login.verify"))));
-  const step1 = h("div", {}, field(t("login.email"), email), h("div", { class: "actions" }, h("button", { type: "button", class: "btn primary", id: "send", onclick: send }, t("login.send"))));
-  async function send() {
-    msg.textContent = "";
-    if (!email.reportValidity()) return;
-    try { await api.requestCode(email.value.trim()); step1.hidden = true; step2.hidden = false; code.focus(); announce(t("login.sent")); }
-    catch (e) { msg.textContent = e instanceof api.OfflineError ? t("err.offline") : t("login.sendFailed"); }
-  }
   return h("section", { class: "block login" },
     h("p", { class: "eyebrow" }, expired ? t("login.expired") : t("login.eyebrow")),
     h("h2", { class: "headline" }, t("login.title")),
     h("p", { class: "lede" }, t("login.body")),
     h("form", { onsubmit: async (e) => {
       e.preventDefault(); msg.textContent = "";
-      try { await api.verifyCode(email.value.trim(), code.value.trim()); }
-      catch (err) { msg.textContent = err instanceof api.OfflineError ? t("err.offline") : t("login.verifyFailed"); }
-    } }, step1, step2, msg));
+      try { await api.signIn(email.value.trim(), pass.value); }
+      catch (err) { msg.textContent = err instanceof api.OfflineError ? t("err.offline") : t("login.failed"); }
+    } },
+    field(t("login.email"), email), field(t("login.password"), pass),
+    h("div", { class: "actions" }, h("button", { type: "submit", class: "btn primary" }, t("login.signIn"))), msg));
 }

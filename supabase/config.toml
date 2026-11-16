@@ -1,0 +1,10 @@
+# Configuração mínima para `supabase functions deploy`.
+# verify_jwt = false: o gateway não valida o token; cada função valida-o ela própria
+# (admin.auth.getUser) e recusa pedidos sem utilizador autenticado. Isto também funciona
+# com as novas chaves "publishable" (que não são JWT).
+[functions.analyse-learning-profile]
+verify_jwt = false
+[functions.generate-next-step]
+verify_jwt = false
+[functions.explain-recommendation]
+verify_jwt = false

@@ -1,0 +1,11 @@
+{
+  "name": "learning-journey",
+  "private": true,
+  "type": "module",
+  "description": "Sem dependências de runtime. Os scripts só correm testes (Node >= 22).",
+  "scripts": {
+    "test": "node --test tests/unit/*.test.mjs",
+    "test:sql": "tests/sql/run.sh",
+    "test:e2e": "node tests/e2e/run.mjs"
+  }
+}

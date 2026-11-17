@@ -1,0 +1,10 @@
+{
+  "name": "learning-journey",
+  "private": true,
+  "type": "module",
+  "description": "Sem dependências de runtime. Os scripts só correm testes (Node >= 22; o E2E usa o Playwright já instalado).",
+  "scripts": {
+    "test": "node --test tests/unit/*.test.mjs",
+    "test:e2e": "node tests/e2e/run.mjs"
+  }
+}

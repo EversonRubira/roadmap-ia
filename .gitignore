@@ -1,0 +1,7 @@
+node_modules/
+tests/e2e/shots/
+.env
+.env.*
+supabase/.env*
+supabase/.temp/
+supabase/.branches/

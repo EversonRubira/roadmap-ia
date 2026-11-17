@@ -1,0 +1,261 @@
+{
+  "date": "2026-11-17",
+  "previous": null,
+  "status": "approved",
+  "objective": {
+    "pt": "AI Application Engineer",
+    "en": "AI Application Engineer"
+  },
+  "focus": {
+    "competency": "retrieval-rag",
+    "why": {
+      "pt": "Há evidências fortes de integração com LLMs, structured outputs, safety e evals, mas nenhuma evidência autorizada de retrieval semântico ou RAG. Retrieval pode depois servir de tool para agentes e MCP, e o contrário não acontece. É uma competência central para AI Application Engineer.",
+      "en": "There is strong evidence of LLM integration, structured outputs, safety and evals, but no authorised evidence of semantic retrieval or RAG. Retrieval can later serve as a tool for agents and MCP, but not the other way round. It is a core skill for an AI Application Engineer."
+    },
+    "why_not_others": {
+      "pt": "Tool Use & MCP e Agents & Workflows também estão em 0, mas já têm curso em curso ou planeado: aprender primeiro é a ação certa e já consta do teu roadmap. Para RAG o conhecimento base existe, falta aplicar.",
+      "en": "Tool Use & MCP and Agents & Workflows are also at 0, but they already have a course in progress or planned: learning first is the right action and it is already on your roadmap. For RAG the base knowledge exists, what is missing is applying it."
+    },
+    "action": {
+      "type": "APLICAR",
+      "title": {
+        "pt": "Construir um pequeno laboratório independente de Retrieval/RAG",
+        "en": "Build a small independent Retrieval/RAG lab"
+      },
+      "where": {
+        "kind": "lab",
+        "reason": {
+          "pt": "Nenhum dos projetos analisados tem uma necessidade de produto que justifique RAG. O TrackCargo recupera documentos por um mapa determinístico que funciona e está testado. Acrescentar RAG a um projeto só para demonstrar a competência seria introduzir tecnologia para preencher a matriz. O laboratório usa documentação pública ou dados sintéticos.",
+          "en": "None of the analysed projects has a product need that justifies RAG. TrackCargo retrieves documents through a deterministic map that works and is tested. Adding RAG to a project just to demonstrate the skill would be introducing technology to fill the matrix. The lab uses public documentation or synthetic data."
+        }
+      },
+      "expected_evidence": {
+        "pt": [
+          "Pipeline de ingestão e índice",
+          "Respostas com fontes citadas",
+          "15 a 20 queries com as fontes esperadas",
+          "recall@3 calculado",
+          "Pelo menos uma falha de retrieval documentada"
+        ],
+        "en": [
+          "Ingestion pipeline and index",
+          "Answers with cited sources",
+          "15 to 20 queries with expected sources",
+          "recall@3 computed",
+          "At least one documented retrieval failure"
+        ]
+      },
+      "then": {
+        "pt": "Depois de produzir esta evidência, voltar ao Claude e pedir uma nova análise.",
+        "en": "After producing this evidence, go back to Claude and ask for a new analysis."
+      }
+    }
+  },
+  "competencies": [
+    {
+      "id": "llm-integration",
+      "level": 3,
+      "confidence": "high",
+      "evidence": [
+        {
+          "location": "TrackCargo · docs/ai-test-triage/adr/ADR-003.md",
+          "note": {
+            "pt": "Máximo de 2 tentativas, timeout de 30 s e degradação controlada (TRIAGE FAILED).",
+            "en": "At most 2 attempts, 30 s timeout and controlled degradation (TRIAGE FAILED)."
+          }
+        },
+        {
+          "location": "TrackCargo · docs/ai-test-triage/VERIFICATION-PACK.md",
+          "note": {
+            "pt": "Testes do cliente com timeout e nova tentativa, provider simulado sem rede, chave só no passo do triage.",
+            "en": "Client tests for timeout and retry, simulated provider without network, key used only in the triage step."
+          }
+        },
+        {
+          "location": "TrackCargo · docs/ai-test-triage/evals/baseline-v1/BASELINE-REPORT.md",
+          "note": {
+            "pt": "Latência, tokens e custo registados por chamada (10 chamadas, média de 10,7 s, US$ 0,1782).",
+            "en": "Latency, tokens and cost recorded per call (10 calls, average 10.7 s, US$ 0.1782)."
+          }
+        }
+      ],
+      "gap": {
+        "pt": "Falta uso real observável: o passo do triage com chave real no ci.yml normal ainda não foi observado.",
+        "en": "No observable real use yet: the triage step with a real key in the normal ci.yml has not been observed."
+      }
+    },
+    {
+      "id": "prompt-context-engineering",
+      "level": 2,
+      "confidence": "medium",
+      "evidence": [
+        {
+          "location": "TrackCargo · docs/ai-test-triage/VERIFICATION-PACK.md (TriagePromptTest, ContextBuilderTest)",
+          "note": {
+            "pt": "Prompt com bloco de dados não confiáveis e construção de contexto que declara o que ficou de fora.",
+            "en": "Prompt with an untrusted-data block and context assembly that declares what was left out."
+          }
+        }
+      ],
+      "gap": {
+        "pt": "Sem comparação de versões do prompt sobre um conjunto de casos, e as mudanças de prompt foram adiadas para a V2.",
+        "en": "No comparison of prompt versions over a set of cases, and prompt changes were deferred to V2."
+      }
+    },
+    {
+      "id": "structured-outputs",
+      "level": 3,
+      "confidence": "medium",
+      "evidence": [
+        {
+          "location": "TrackCargo · docs/ai-test-triage/VERIFICATION-PACK.md (DiagnosisValidatorTest, ClaudeClientTest)",
+          "note": {
+            "pt": "Validação antes de usar a resposta e ramo explícito para resposta inválida.",
+            "en": "Validation before the response is used and an explicit branch for an invalid response."
+          }
+        },
+        {
+          "location": "TrackCargo · docs/ai-test-triage/adr/ADR-003.md",
+          "note": {
+            "pt": "Estratégia documentada: nova tentativa perante saída inválida e falha com a evidência preservada.",
+            "en": "Documented strategy: retry on invalid output and failure with the evidence preserved."
+          }
+        }
+      ],
+      "gap": {
+        "pt": "A taxa de respostas inválidas não é medida de forma explícita e o esquema não tem versão. O nível 3 assenta em apenas dois itens.",
+        "en": "The invalid response rate is not explicitly measured and the schema is not versioned. Level 3 rests on only two items."
+      }
+    },
+    {
+      "id": "retrieval-rag",
+      "level": 0,
+      "confidence": "medium",
+      "evidence": [],
+      "gap": {
+        "pt": "Evidência insuficiente: não há retrieval semântico nem RAG nos repositórios autorizados. O retriever do TrackCargo é um mapa determinístico de documentos. Ausência de evidência não significa ausência de conhecimento.",
+        "en": "Insufficient evidence: there is no semantic retrieval or RAG in the authorised repositories. The TrackCargo retriever is a deterministic document map. Absence of evidence does not mean absence of knowledge."
+      }
+    },
+    {
+      "id": "tool-use-mcp",
+      "level": 0,
+      "confidence": "medium",
+      "evidence": [],
+      "gap": {
+        "pt": "Evidência insuficiente: não há tool chamada por um modelo nem servidor MCP nos repositórios autorizados. O TrackCargo não dá tools ao modelo, por decisão de segurança.",
+        "en": "Insufficient evidence: there is no model-called tool or MCP server in the authorised repositories. TrackCargo gives the model no tools, by security decision."
+      }
+    },
+    {
+      "id": "agents-workflows",
+      "level": 0,
+      "confidence": "low",
+      "evidence": [],
+      "gap": {
+        "pt": "Evidência insuficiente: não encontrei workflow com mais de um passo de LLM nos repositórios lidos. Confiança baixa porque não li todo o código do Fit-Analizer.",
+        "en": "Insufficient evidence: I found no workflow with more than one LLM step in the repositories read. Low confidence because I did not read all of the Fit-Analizer code."
+      }
+    },
+    {
+      "id": "evals-testing",
+      "level": 2,
+      "confidence": "high",
+      "evidence": [
+        {
+          "location": "TrackCargo · docs/ai-test-triage/evals/dataset-v1 (EvalDatasetTest)",
+          "note": {
+            "pt": "Dataset versionado de 10 casos.",
+            "en": "Versioned dataset of 10 cases."
+          }
+        },
+        {
+          "location": "TrackCargo · docs/ai-test-triage/evals/baseline-v1/BASELINE-REPORT.md",
+          "note": {
+            "pt": "Runner, resultados guardados, critério automático e limitações declaradas (uma execução por caso).",
+            "en": "Runner, stored results, automatic criterion and declared limitations (one run per case)."
+          }
+        },
+        {
+          "location": "TrackCargo · docs/ai-test-triage/evals/baseline-v1/human-review.json",
+          "note": {
+            "pt": "Revisão humana registada e reportada à parte do número automático.",
+            "en": "Human review recorded and reported separately from the automatic number."
+          }
+        }
+      ],
+      "gap": {
+        "pt": "O baseline está guardado mas ainda não é comparado a cada mudança relevante, não corre como rotina no CI e os casos não vêm de falhas reais.",
+        "en": "The baseline is stored but not yet compared on each relevant change, does not run as a CI routine and the cases do not come from real failures."
+      }
+    },
+    {
+      "id": "safety-guardrails",
+      "level": 3,
+      "confidence": "medium",
+      "evidence": [
+        {
+          "location": "TrackCargo · docs/ai-test-triage/VERIFICATION-PACK.md (Controlos de segurança)",
+          "note": {
+            "pt": "Filtro de segredos obrigatório, bloco de dados não confiáveis, chave só no passo do triage e workflow sem pull_request_target.",
+            "en": "Mandatory secret filter, untrusted-data block, key used only in the triage step and a workflow without pull_request_target."
+          }
+        },
+        {
+          "location": "TrackCargo · docs/ai-test-triage/VERIFICATION-PACK.md (CA-07, caso 07 do baseline)",
+          "note": {
+            "pt": "Testes repetíveis de injeção de texto e caso real do baseline a passar.",
+            "en": "Repeatable text-injection tests and a real baseline case passing."
+          }
+        }
+      ],
+      "gap": {
+        "pt": "Não verifiquei um modelo de ameaças formal. No Fit-Analizer a mitigação de prompt injection está pendente, por isso o nível vale para o TrackCargo.",
+        "en": "I did not verify a formal threat model. In Fit-Analizer the prompt-injection mitigation is pending, so the level holds for TrackCargo."
+      }
+    },
+    {
+      "id": "observability-production",
+      "level": 2,
+      "confidence": "medium",
+      "evidence": [
+        {
+          "location": "TrackCargo · src/main/java/…/triage/observability e BASELINE-REPORT.md",
+          "note": {
+            "pt": "Métricas por chamada (latência, tokens, custo) medidas pelo pipeline.",
+            "en": "Per-call metrics (latency, tokens, cost) measured by the pipeline."
+          }
+        }
+      ],
+      "gap": {
+        "pt": "Não há aplicação com utilizadores reais a gerar dados, nem problema diagnosticado com esses dados. O pacote de observabilidade não foi lido em detalhe.",
+        "en": "There is no application with real users generating data, nor a problem diagnosed from that data. The observability package was not read in detail."
+      }
+    },
+    {
+      "id": "ai-native-engineering",
+      "level": 1,
+      "confidence": "medium",
+      "evidence": [
+        {
+          "location": "TrackCargo · docs/ai-test-triage (spec, tasks T01 a T15, CLAUDE-HANDOFF.md, VERIFICATION-PACK.md)",
+          "note": {
+            "pt": "Especificação antes da implementação e critérios de aceitação ligados a testes.",
+            "en": "Specification before implementation and acceptance criteria linked to tests."
+          }
+        },
+        {
+          "location": "Fit-Analizer · CLAUDE.md (commit 0100b57)",
+          "note": {
+            "pt": "Ficheiro de instruções para assistentes, por enquanto com um único commit.",
+            "en": "Instruction file for assistants, so far with a single commit."
+          }
+        }
+      ],
+      "gap": {
+        "pt": "O critério âncora do nível 2 (ficheiro de contexto mantido em vários commits) não está cumprido, e falta o registo de falhas do assistente com a regra resultante.",
+        "en": "The level 2 anchor (a context file maintained across several commits) is not met, and there is no record of assistant failures with the resulting rule."
+      }
+    }
+  ]
+}

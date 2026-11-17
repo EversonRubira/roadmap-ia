@@ -1,0 +1,26 @@
+{
+  "_note": {
+    "pt": "Só cursos confirmados. Um curso dá evidência de nível 1 e nunca sozinho nível 2 ou 3. Os restantes cursos do roadmap antigo continuam disponíveis em legacy/.",
+    "en": "Confirmed courses only. A course gives level 1 evidence and never level 2 or 3 on its own. The remaining courses of the old roadmap stay available in legacy/."
+  },
+  "courses": [
+    {
+      "id": "ea-b1",
+      "title": "Pensamento computacional: fundamentos da computação e lógica de programação",
+      "provider": "Alura",
+      "completed": null,
+      "competencies": [],
+      "source": "roadmap antigo (estado inicial da app)"
+    },
+    {
+      "id": "ea-1-1",
+      "title": "LangChain e Python: criando ferramentas com a OpenAI",
+      "provider": "Alura",
+      "completed": "2026-05",
+      "competencies": [
+        "llm-integration"
+      ],
+      "source": "roadmap antigo e perfil (concluído em mai/2026)"
+    }
+  ]
+}

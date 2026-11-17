@@ -1,0 +1,713 @@
+{
+  "_meta": {
+    "version": "0.1-rascunho",
+    "revision": 2,
+    "objective_pt": "AI Application Engineer / AI Engineer com forte base em Software Engineering",
+    "objective_en": "AI Application Engineer / AI Engineer with a strong Software Engineering foundation",
+    "scale": {
+      "0": {
+        "label_pt": "Não observado",
+        "label_en": "Not observed",
+        "description_pt": "Nenhuma evidência suficiente foi encontrada.",
+        "description_en": "No sufficient evidence was found."
+      },
+      "1": {
+        "label_pt": "Conhecimento",
+        "label_en": "Knowledge",
+        "description_pt": "Existem artefactos de estudo ou experimento: curso, documentação, experimento, nota escrita ou pequeno exercício.",
+        "description_en": "There are study or experiment artefacts: a course, documentation, an experiment, a written note or a small exercise."
+      },
+      "2": {
+        "label_pt": "Aplicado",
+        "label_en": "Applied",
+        "description_pt": "Existe implementação real, com justificação escrita das escolhas.",
+        "description_en": "There is a real implementation, with a written rationale for the choices."
+      },
+      "3": {
+        "label_pt": "Consolidado",
+        "label_en": "Consolidated",
+        "description_pt": "Existe implementação real acompanhada de verificação, documentação de decisões ou operação (testes, evals, medições, observabilidade, ADR, deploy, uso real, tratamento de falhas).",
+        "description_en": "There is a real implementation backed by verification, recorded decisions or operation (tests, evals, measurements, observability, ADRs, deployment, real use, failure handling)."
+      }
+    },
+    "definitions": {
+      "authorized_evidence": {
+        "pt": "Repositórios explicitamente autorizados, registos em cursos-feitos.json e notas escritas registadas no repositório de dados. Nada fora disto conta.",
+        "en": "Explicitly authorised repositories, entries in cursos-feitos.json and written notes recorded in the data repository. Nothing outside these counts."
+      },
+      "real_implementation": {
+        "pt": "Código num projeto com finalidade própria descrita (README ou descrição do repositório) e histórico de commits ao longo do tempo. Exercícios de curso e cópias de tutoriais sem alteração própria não contam para o nível 2 ou 3.",
+        "en": "Code in a project with its own stated purpose (README or repository description) and a commit history over time. Course exercises and unmodified tutorial copies do not count towards level 2 or 3."
+      },
+      "written_rationale": {
+        "pt": "Justificação escrita acessível ao analista: README, ADR, descrição de PR, mensagem de commit, comentário de código ou nota registada. Uma explicação apenas oral não é evidência.",
+        "en": "A written rationale the analyst can access: README, ADR, PR description, commit message, code comment or a recorded note. A purely verbal explanation is not evidence."
+      },
+      "observable_real_use": {
+        "pt": "Configuração de deploy com ambiente identificável e commits posteriores que respondem a problemas de uso, ou registo de utilizadores. Para projetos de clientes, apenas registo manual e abstrato.",
+        "en": "Deployment configuration with an identifiable environment and later commits that respond to usage problems, or a record of users. For client projects, only a manual, abstract record."
+      }
+    },
+    "assignment_rules": [
+      {
+        "level": 1,
+        "pt": "Pelo menos um item de evidência do nível 1 existe nas evidências autorizadas.",
+        "en": "At least one level 1 evidence item exists in the authorised evidence."
+      },
+      {
+        "level": 2,
+        "pt": "O item âncora do nível 2 (anchor: true) existe e pelo menos um outro item do nível 2 também.",
+        "en": "The level 2 anchor item (anchor: true) exists and at least one other level 2 item does too."
+      },
+      {
+        "level": 3,
+        "pt": "Os critérios do nível 2 estão cumpridos e pelo menos dois itens do nível 3 existem.",
+        "en": "The level 2 criteria are met and at least two level 3 items exist."
+      },
+      {
+        "level": "all",
+        "pt": "Cada nível atribuído cita a localização de cada evidência (repositório, ficheiro, commit, PR ou registo). Evidência de um nível superior conta também para os inferiores. Se os itens não podem ser citados, o nível não é atribuído.",
+        "en": "Every level assigned cites the location of each piece of evidence (repository, file, commit, PR or record). Evidence for a higher level also counts for the lower ones. If the items cannot be cited, the level is not assigned."
+      }
+    ],
+    "reading_rules": [
+      {
+        "pt": "Um sinal isolado não prova competência. Procurar combinação de sinais e contexto: um ficheiro chamado eval.py sozinho não demonstra nada.",
+        "en": "A single signal does not prove competence. Look for combinations of signals and context: a file named eval.py alone demonstrates nothing."
+      },
+      {
+        "pt": "O nível mede a maturidade das evidências observadas, não a capacidade da pessoa. Ausência de curso não é ausência de evidência noutra forma.",
+        "en": "The level measures the maturity of the observed evidence, not the person's ability. No course does not mean no evidence in another form."
+      },
+      {
+        "pt": "A confidence (low, medium, high) é registada à parte do nível. Se não houver evidência suficiente, a análise diz isso em vez de preencher lacunas.",
+        "en": "Confidence (low, medium, high) is recorded separately from the level. If evidence is insufficient, the analysis says so instead of filling gaps."
+      },
+      {
+        "pt": "Repositórios de clientes não são analisados automaticamente. Práticas de projetos profissionais entram apenas como registo manual e abstrato, sem identificar o cliente.",
+        "en": "Client repositories are not analysed automatically. Practices from professional projects are recorded only manually and in the abstract, without identifying the client."
+      }
+    ],
+    "overlap_rules": [
+      {
+        "between": ["tool-use-mcp", "agents-workflows"],
+        "rule_pt": "Uma ferramenta chamada num único passo, ou um servidor MCP, é Tool Use. Quando há ciclo de decisão, vários passos, estado e critério de paragem, é Agents. Construir um servidor MCP conta em Tool Use, mesmo que um agente o consuma.",
+        "rule_en": "A tool called in a single step, or an MCP server, is Tool Use. When there is a decision loop, multiple steps, state and a stop condition, it is Agents. Building an MCP server counts under Tool Use even if an agent consumes it."
+      },
+      {
+        "between": ["evals-testing", "observability-production"],
+        "rule_pt": "Pontuar saídas contra um dataset com critérios é Evals. Rastrear execuções, custo, latência e erros em funcionamento é Observability. Uma falha de produção que vira caso do dataset conta nas duas, cada uma pela sua parte.",
+        "rule_en": "Scoring outputs against a dataset with criteria is Evals. Tracing executions, cost, latency and errors while running is Observability. A production failure turned into a dataset case counts under both, each for its own part."
+      },
+      {
+        "between": ["structured-outputs", "safety-guardrails"],
+        "rule_pt": "Validar o formato e o esquema da resposta é Structured Outputs. Defender contra injeção, fuga de dados, ações indevidas ou conteúdo inadequado é Safety. Validação de esquema sozinha não conta como guardrail.",
+        "rule_en": "Validating the format and schema of the response is Structured Outputs. Defending against injection, data leakage, unintended actions or inappropriate content is Safety. Schema validation alone does not count as a guardrail."
+      },
+      {
+        "between": ["retrieval-rag", "prompt-context-engineering"],
+        "rule_pt": "Indexar, pesquisar e medir a recuperação é RAG. Decidir como o contexto recuperado é composto, ordenado e limitado no prompt é Context Engineering.",
+        "rule_en": "Indexing, searching and measuring retrieval is RAG. Deciding how the retrieved context is composed, ordered and limited in the prompt is Context Engineering."
+      },
+      {
+        "between": ["llm-integration", "structured-outputs"],
+        "rule_pt": "Chamar o modelo de forma fiável (erros, limites, custo, escolha de modelo) é LLM Integration. O contrato dos dados que voltam do modelo é Structured Outputs.",
+        "rule_en": "Calling the model reliably (errors, limits, cost, model choice) is LLM Integration. The contract of the data coming back from the model is Structured Outputs."
+      },
+      {
+        "between": ["ai-native-engineering", "all"],
+        "rule_pt": "AI-Native Engineering avalia como a IA é usada para construir software (especificação, revisão, testes, contexto de projeto), não se o software construído tem funcionalidades de IA. As outras nove competências avaliam o que o software faz com IA.",
+        "rule_en": "AI-Native Engineering assesses how AI is used to build software (specification, review, testing, project context), not whether the software built has AI features. The other nine competencies assess what the software does with AI."
+      }
+    ],
+    "field_notes": {
+      "rendered_in_ui": ["name_*", "description_*", "levels.*.description_*", "levels.*.expected_evidence[].pt/en", "practical_evidence_examples[].pt/en"],
+      "analyst_facing_only": ["code_signals", "documentation_signals", "learning_resource_types"],
+      "analyst_facing_note": "code_signals and documentation_signals are technical and written in English only. They are never shown in the UI."
+    },
+    "learning_resource_type_labels": {
+      "official-documentation": { "pt": "Documentação oficial", "en": "Official documentation" },
+      "structured-course": { "pt": "Curso estruturado", "en": "Structured course" },
+      "technical-reading": { "pt": "Leitura técnica", "en": "Technical reading" },
+      "hands-on-tutorial": { "pt": "Tutorial prático", "en": "Hands-on tutorial" },
+      "specification": { "pt": "Especificação", "en": "Specification" },
+      "reference-framework": { "pt": "Referencial de boas práticas", "en": "Reference framework" }
+    },
+    "future_catalog": {
+      "file": "learning-resources.json",
+      "status": "conceptual, not implemented",
+      "note_pt": "Os recursos concretos (cursos, documentação, leituras) vivem num catálogo futuro, separado deste ficheiro. Cada recurso referenciará um ou mais ids de competência. Este ficheiro nunca referencia fornecedores nem cursos específicos.",
+      "note_en": "Concrete resources (courses, documentation, readings) live in a future catalogue, separate from this file. Each resource will reference one or more competency ids. This file never references specific providers or courses."
+    }
+  },
+  "competencies": [
+    {
+      "id": "llm-integration",
+      "name_pt": "Integração com LLMs",
+      "name_en": "LLM Integration",
+      "description_pt": "Chamar modelos de linguagem a partir de aplicações de forma fiável: tratamento de erros, limites, custo e escolha de modelo.",
+      "description_en": "Calling language models from applications reliably: error handling, limits, cost and model choice.",
+      "levels": {
+        "1": {
+          "description_pt": "Existem artefactos de estudo ou experimento com chamadas a um LLM, sem integração numa aplicação.",
+          "description_en": "There are study or experiment artefacts with LLM calls that are not integrated into an application.",
+          "expected_evidence": [
+            { "pt": "Script ou notebook que faz chamadas a uma API de LLM", "en": "Script or notebook that makes calls to an LLM API" },
+            { "pt": "Registo de conclusão de curso ou notas escritas sobre uma API de LLM (mensagens, parâmetros, tokens)", "en": "Record of a completed course or written notes about an LLM API (messages, parameters, tokens)" },
+            { "pt": "Nota escrita que compara modelos ou parâmetros com base num experimento", "en": "Written note comparing models or parameters based on an experiment" }
+          ]
+        },
+        "2": {
+          "description_pt": "O código de uma aplicação com finalidade própria chama um LLM num fluxo real, com configuração fora do código e tratamento de erros, e as escolhas estão justificadas por escrito.",
+          "description_en": "The code of an application with its own purpose calls an LLM in a real flow, with configuration outside the code and error handling, and the choices are justified in writing.",
+          "expected_evidence": [
+            { "pt": "Código de aplicação que chama um LLM dentro de um fluxo do projeto (e não apenas num exercício)", "en": "Application code that calls an LLM inside a project flow (not only in an exercise)", "anchor": true },
+            { "pt": "Modelo e chaves configurados fora do código (variáveis de ambiente ou ficheiro de configuração)", "en": "Model and keys configured outside the code (environment variables or a configuration file)" },
+            { "pt": "Tratamento explícito de erros e de timeouts nas chamadas", "en": "Explicit error and timeout handling around the calls" },
+            { "pt": "Justificação escrita da escolha de modelo ou de custo (README, ADR, descrição de PR ou nota registada)", "en": "Written rationale for the model or cost choice (README, ADR, PR description or recorded note)" }
+          ]
+        },
+        "3": {
+          "description_pt": "Além do nível 2, a integração está verificada e operada: falhas previstas, custo medido, testes sem rede e uso real observável.",
+          "description_en": "Beyond level 2, the integration is verified and operated: anticipated failures, measured cost, offline tests and observable real use.",
+          "expected_evidence": [
+            { "pt": "Retries com backoff, fallback entre modelos ou degradação controlada no código", "en": "Retries with backoff, fallback between models or controlled degradation in the code" },
+            { "pt": "Testes automáticos que substituem o cliente do LLM e correm sem rede", "en": "Automated tests that replace the LLM client and run without a network" },
+            { "pt": "Medição registada de tokens, custo ou latência por chamada", "en": "Recorded measurement of tokens, cost or latency per call" },
+            { "pt": "Uso real observável: deploy configurado e commits posteriores que respondem a problemas de uso", "en": "Observable real use: configured deployment and later commits that respond to usage problems" },
+            { "pt": "ADR ou documento que regista a escolha de modelo ou fornecedor e as alternativas consideradas", "en": "ADR or document recording the model or provider choice and the alternatives considered" }
+          ]
+        }
+      },
+      "code_signals": [
+        "Dedicated adapter or module isolating the LLM provider from domain code (ports and adapters)",
+        "LLM SDK call combined with exception handling, timeouts and retries, not a bare call",
+        "Model, temperature and limits configurable per environment",
+        "Streaming responses consumed by a UI or API",
+        "Tests that replace the LLM client with a test double"
+      ],
+      "documentation_signals": [
+        "README section on provider configuration and environment variables",
+        "ADR or note on why this model or provider",
+        "Recorded cost or rate-limit notes",
+        "Description of failure modes and how they are handled"
+      ],
+      "learning_resource_types": ["official-documentation", "structured-course", "technical-reading"],
+      "practical_evidence_examples": [
+        { "pt": "Extrair as chamadas ao LLM de um projeto para um adaptador único com timeouts, retries e modelo configurável", "en": "Extract a project's LLM calls into a single adapter with timeouts, retries and a configurable model" },
+        { "pt": "Registar tokens, custo e latência de cada chamada num ficheiro", "en": "Record tokens, cost and latency of each call in a file" },
+        { "pt": "Escrever testes que correm sem rede, substituindo o cliente do LLM", "en": "Write tests that run offline by replacing the LLM client" }
+      ]
+    },
+    {
+      "id": "prompt-context-engineering",
+      "name_pt": "Prompt e Engenharia de Contexto",
+      "name_en": "Prompt & Context Engineering",
+      "description_pt": "Desenhar as instruções e o contexto entregues ao modelo (o que entra, em que ordem, com que orçamento de tokens) de forma deliberada e versionada.",
+      "description_en": "Designing the instructions and context given to the model (what goes in, in what order, within what token budget) deliberately and under version control.",
+      "levels": {
+        "1": {
+          "description_pt": "Existem artefactos de estudo ou experimento sobre instruções e contexto para LLMs, sem integração numa aplicação.",
+          "description_en": "There are study or experiment artefacts about instructions and context for LLMs, not integrated into an application.",
+          "expected_evidence": [
+            { "pt": "Notas ou experimentos com variações de prompt e o resultado de cada uma", "en": "Notes or experiments with prompt variations and the result of each" },
+            { "pt": "Registo de conclusão de curso ou notas sobre documentação de prompting estudada", "en": "Record of a completed course or notes on prompting documentation studied" },
+            { "pt": "Nota escrita que descreve few-shot, instruções de sistema ou limites da janela de contexto, com um exemplo próprio", "en": "Written note describing few-shot prompting, system instructions or context window limits, with an own example" }
+          ]
+        },
+        "2": {
+          "description_pt": "Os prompts e a montagem de contexto fazem parte do código de uma aplicação real, estão organizados e as escolhas estão justificadas por escrito.",
+          "description_en": "Prompts and context assembly are part of a real application's code, are organised, and the choices are justified in writing.",
+          "expected_evidence": [
+            { "pt": "Prompts mantidos em templates ou módulos próprios, separados da lógica, num projeto com finalidade própria", "en": "Prompts kept in dedicated templates or modules, separate from logic, in a project with its own purpose", "anchor": true },
+            { "pt": "Montagem de contexto com critério escrito ou codificado do que entra e do que é cortado", "en": "Context assembly with a written or coded criterion for what goes in and what is cut" },
+            { "pt": "Instruções de sistema ou exemplos few-shot com justificação escrita (comentário, README ou nota)", "en": "System instructions or few-shot examples with a written rationale (comment, README or note)" },
+            { "pt": "Pelo menos uma alteração de prompt com o motivo registado (commit, PR ou nota)", "en": "At least one prompt change with the reason recorded (commit, PR or note)" }
+          ]
+        },
+        "3": {
+          "description_pt": "Além do nível 2, o contexto é gerido com orçamento e as mudanças de prompt são comparadas e rastreáveis.",
+          "description_en": "Beyond level 2, context is managed with a budget and prompt changes are compared and traceable.",
+          "expected_evidence": [
+            { "pt": "Histórico de versões de prompts com o motivo de cada alteração", "en": "Prompt version history with the reason for each change" },
+            { "pt": "Gestão explícita do orçamento de tokens (truncagem, sumarização ou caching) no código", "en": "Explicit token budget management (truncation, summarisation or caching) in the code" },
+            { "pt": "Comparação de versões de prompt sobre um conjunto de casos, com resultados guardados", "en": "Comparison of prompt versions over a set of cases, with stored results" },
+            { "pt": "Decisão de contexto documentada (ADR ou nota técnica)", "en": "Documented context decision (ADR or technical note)" }
+          ]
+        }
+      },
+      "code_signals": [
+        "Prompt template directory or module separate from business logic",
+        "Context-building functions with token limits and priorities",
+        "Prompt caching or stable-prefix reuse",
+        "Templates filled from structured data",
+        "Scripts or tests comparing outputs of two prompt versions"
+      ],
+      "documentation_signals": [
+        "Prompt changelog with reasons",
+        "Notes on what enters the context and why",
+        "Examples of prompt failures and their fixes"
+      ],
+      "learning_resource_types": ["official-documentation", "structured-course", "technical-reading"],
+      "practical_evidence_examples": [
+        { "pt": "Mover todos os prompts de um projeto para templates versionados com variáveis", "en": "Move all of a project's prompts into versioned templates with variables" },
+        { "pt": "Definir e implementar uma política de orçamento de contexto (o que cortar primeiro)", "en": "Define and implement a context budget policy (what to cut first)" },
+        { "pt": "Comparar duas versões de um prompt sobre 20 casos reais e registar a diferença", "en": "Compare two versions of a prompt over 20 real cases and record the difference" }
+      ]
+    },
+    {
+      "id": "structured-outputs",
+      "name_pt": "Saídas Estruturadas",
+      "name_en": "Structured Outputs",
+      "description_pt": "Obter do modelo dados que cumprem um contrato (JSON ou esquema) e validá-los antes de os usar no resto do sistema.",
+      "description_en": "Getting data from the model that meets a contract (JSON or schema) and validating it before it is used in the rest of the system.",
+      "levels": {
+        "1": {
+          "description_pt": "Existem artefactos de estudo ou experimento de extração de dados estruturados a partir de um LLM, sem integração numa aplicação.",
+          "description_en": "There are study or experiment artefacts of extracting structured data from an LLM, not integrated into an application.",
+          "expected_evidence": [
+            { "pt": "Experimento que extrai JSON a partir de texto livre", "en": "Experiment that extracts JSON from free text" },
+            { "pt": "Registo de conclusão de curso ou nota escrita que distingue pedir JSON no prompt, usar tool use e usar saída com esquema", "en": "Record of a completed course or written note distinguishing asking for JSON in the prompt, using tool use and using schema-based output" },
+            { "pt": "Exercício resolvido de extração de dados, guardado num repositório", "en": "Solved data extraction exercise stored in a repository" }
+          ]
+        },
+        "2": {
+          "description_pt": "Saídas estruturadas alimentam o código de uma aplicação real, com esquema definido, validação aplicada e a forma do esquema justificada por escrito.",
+          "description_en": "Structured outputs feed a real application's code, with a defined schema, applied validation and the schema design justified in writing.",
+          "expected_evidence": [
+            { "pt": "Esquema ou modelo tipado ligado à resposta do LLM em código de aplicação", "en": "Typed schema or model bound to the LLM response in application code", "anchor": true },
+            { "pt": "Validação da resposta aplicada antes de usar os dados", "en": "Response validation applied before the data is used" },
+            { "pt": "Ramo explícito para resposta inválida (nova tentativa ou erro claro)", "en": "Explicit branch for an invalid response (retry or clear error)" },
+            { "pt": "Justificação escrita da forma do esquema (comentário, README ou nota)", "en": "Written rationale for the shape of the schema (comment, README or note)" }
+          ]
+        },
+        "3": {
+          "description_pt": "Além do nível 2, o contrato é testado, as falhas são medidas e o esquema é versionado.",
+          "description_en": "Beyond level 2, the contract is tested, failures are measured and the schema is versioned.",
+          "expected_evidence": [
+            { "pt": "Taxa de respostas inválidas medida e registada", "en": "Invalid response rate measured and recorded" },
+            { "pt": "Testes de contrato com casos reais e casos limite, incluindo respostas malformadas", "en": "Contract tests with real cases and edge cases, including malformed responses" },
+            { "pt": "Estratégia de reparação ou de fallback documentada", "en": "Documented repair or fallback strategy" },
+            { "pt": "Esquema versionado, com registo de mudanças e migração quando muda", "en": "Versioned schema, with a change log and migration when it changes" }
+          ]
+        }
+      },
+      "code_signals": [
+        "Typed schema or model definitions (dataclasses, records, JSON Schema) bound to the model response, not merely defined",
+        "LLM call followed by validation, with an explicit branch for invalid output",
+        "Provider tool-use or structured-output mode used to force the format",
+        "Tests with deliberately malformed responses",
+        "Validated output converted into domain objects"
+      ],
+      "documentation_signals": [
+        "Schema documentation with the meaning of each field",
+        "Record of extraction failure modes",
+        "Note on how the schema evolves without breaking consumers"
+      ],
+      "learning_resource_types": ["official-documentation", "structured-course", "hands-on-tutorial"],
+      "practical_evidence_examples": [
+        { "pt": "Extrair campos de documentos reais (por exemplo faturas ou emails) para um esquema validado", "en": "Extract fields from real documents (for example invoices or emails) into a validated schema" },
+        { "pt": "Adicionar um ramo de reparação que reenvia uma vez a resposta inválida com o erro de validação", "en": "Add a repair branch that resends an invalid response once with the validation error" },
+        { "pt": "Criar 15 respostas malformadas e testar que o sistema não falha", "en": "Create 15 malformed responses and test that the system does not fail" }
+      ]
+    },
+    {
+      "id": "retrieval-rag",
+      "name_pt": "Retrieval e RAG",
+      "name_en": "Retrieval & RAG",
+      "description_pt": "Dar ao modelo conhecimento externo através de indexação, pesquisa (semântica, lexical ou híbrida) e montagem das fontes recuperadas, medindo a qualidade da recuperação.",
+      "description_en": "Giving the model external knowledge through indexing, search (semantic, lexical or hybrid) and assembly of retrieved sources, while measuring retrieval quality.",
+      "levels": {
+        "1": {
+          "description_pt": "Existem artefactos de estudo ou experimento de recuperação de informação com LLMs, sem integração numa aplicação.",
+          "description_en": "There are study or experiment artefacts of information retrieval with LLMs, not integrated into an application.",
+          "expected_evidence": [
+            { "pt": "Notebook ou script que indexa poucos documentos e responde a perguntas sobre eles", "en": "Notebook or script that indexes a few documents and answers questions about them" },
+            { "pt": "Registo de conclusão de curso ou tutorial de RAG", "en": "Record of a completed RAG course or tutorial" },
+            { "pt": "Nota escrita que descreve chunking, embeddings e uma falha de recuperação observada no experimento", "en": "Written note describing chunking, embeddings and a retrieval failure observed in the experiment" }
+          ]
+        },
+        "2": {
+          "description_pt": "A recuperação alimenta a geração de respostas numa aplicação com dados de um projeto real, e as escolhas de chunking e de pesquisa estão justificadas por escrito.",
+          "description_en": "Retrieval feeds answer generation in an application with a real project's data, and the chunking and search choices are justified in writing.",
+          "expected_evidence": [
+            { "pt": "Pipeline de ingestão e índice sobre dados de um projeto com finalidade própria, ligado à geração de respostas", "en": "Ingestion pipeline and index over a project's data with its own purpose, connected to answer generation", "anchor": true },
+            { "pt": "Respostas com referências às fontes recuperadas", "en": "Answers with references to the retrieved sources" },
+            { "pt": "Escolhas de chunking e de número de resultados com justificação escrita", "en": "Chunking and result-count choices with a written rationale" },
+            { "pt": "Pelo menos uma falha de recuperação registada (issue, nota ou commit)", "en": "At least one retrieval failure recorded (issue, note or commit)" }
+          ]
+        },
+        "3": {
+          "description_pt": "Além do nível 2, a recuperação é avaliada separadamente da geração e o índice é mantido.",
+          "description_en": "Beyond level 2, retrieval is evaluated separately from generation and the index is maintained.",
+          "expected_evidence": [
+            { "pt": "Conjunto de perguntas com fontes esperadas e métrica de recuperação calculada (por exemplo recall@k)", "en": "Set of questions with expected sources and a computed retrieval metric (for example recall@k)" },
+            { "pt": "Comparação registada de pelo menos duas estratégias (chunking, pesquisa híbrida, reranking)", "en": "Recorded comparison of at least two strategies (chunking, hybrid search, reranking)" },
+            { "pt": "Processo de reindexação ou de deteção de dados desatualizados, no código ou na documentação", "en": "Reindexing process or stale-data detection, in the code or the documentation" },
+            { "pt": "Limites conhecidos do sistema documentados", "en": "Known limits of the system documented" }
+          ]
+        }
+      },
+      "code_signals": [
+        "Ingestion pipeline that chunks, embeds and writes to an index",
+        "Query path that retrieves, filters or reranks before building the prompt",
+        "Answers that return references to their sources",
+        "Scripts or tests measuring retrieval hit rate on known questions",
+        "Document metadata used to filter search"
+      ],
+      "documentation_signals": [
+        "Description of the corpus, chunking and index",
+        "Results of comparing retrieval strategies",
+        "List of known failures (questions that do not retrieve the right source)"
+      ],
+      "learning_resource_types": ["official-documentation", "structured-course", "technical-reading"],
+      "practical_evidence_examples": [
+        { "pt": "Construir um pequeno RAG sobre a documentação de um dos projetos, com fontes citadas", "en": "Build a small RAG over one of the projects' documentation, with cited sources" },
+        { "pt": "Criar 20 perguntas com a fonte esperada e medir quantas vezes a fonte certa aparece nos 3 primeiros resultados", "en": "Create 20 questions with the expected source and measure how often the right source appears in the top 3 results" },
+        { "pt": "Comparar chunking fixo com chunking por secções e registar o resultado", "en": "Compare fixed chunking with section-based chunking and record the result" }
+      ]
+    },
+    {
+      "id": "tool-use-mcp",
+      "name_pt": "Tool Use e MCP",
+      "name_en": "Tool Use & MCP",
+      "description_pt": "Dar ao modelo capacidade de agir: definir ferramentas com contratos claros, executá-las com segurança e expô-las por protocolos como o MCP.",
+      "description_en": "Giving the model the ability to act: defining tools with clear contracts, running them safely and exposing them through protocols such as MCP.",
+      "levels": {
+        "1": {
+          "description_pt": "Existem artefactos de estudo ou experimento de ferramentas chamadas por um modelo ou de MCP, sem integração num fluxo de aplicação.",
+          "description_en": "There are study or experiment artefacts of tools called by a model or of MCP, not integrated into an application flow.",
+          "expected_evidence": [
+            { "pt": "Exemplo mínimo em que um modelo chama uma ferramenta", "en": "Minimal example in which a model calls a tool" },
+            { "pt": "Registo de conclusão de curso ou notas escritas sobre MCP e tool use", "en": "Record of a completed course or written notes on MCP and tool use" },
+            { "pt": "Nota escrita que distingue ferramenta local de servidor MCP, com exemplo próprio", "en": "Written note distinguishing a local tool from an MCP server, with an own example" }
+          ]
+        },
+        "2": {
+          "description_pt": "Ferramentas ou servidores MCP estão implementados e são usados num fluxo de um projeto real, com instruções que permitem repetir o uso.",
+          "description_en": "Tools or MCP servers are implemented and used in a real project's flow, with instructions that allow the use to be repeated.",
+          "expected_evidence": [
+            { "pt": "Ferramenta com esquema de entrada e descrição, chamada por um modelo num fluxo de um projeto com finalidade própria, ou servidor MCP funcional no repositório", "en": "Tool with an input schema and description, called by a model in a flow of a project with its own purpose, or a working MCP server in the repository", "anchor": true },
+            { "pt": "Erros da ferramenta devolvidos ao modelo num formato utilizável", "en": "Tool errors returned to the model in a usable format" },
+            { "pt": "Instruções de configuração do servidor ou do cliente MCP (README) que permitem repetir o uso", "en": "MCP server or client configuration instructions (README) that allow the use to be repeated" },
+            { "pt": "Pelo menos uma alteração a descrições ou esquemas de ferramentas com o motivo registado", "en": "At least one change to tool descriptions or schemas with the reason recorded" }
+          ]
+        },
+        "3": {
+          "description_pt": "Além do nível 2, as ferramentas têm contrato testado, permissões separadas e uso continuado observável.",
+          "description_en": "Beyond level 2, the tools have a tested contract, separated permissions and observable continued use.",
+          "expected_evidence": [
+            { "pt": "Testes às funções das ferramentas, independentes do modelo", "en": "Tests of the tool functions, independent of the model" },
+            { "pt": "Validação de argumentos e separação de permissões (leitura e escrita) no código", "en": "Argument validation and separation of permissions (read and write) in the code" },
+            { "pt": "Uso continuado observável: servidor publicado ou commits posteriores que respondem a problemas de uso", "en": "Observable continued use: published server or later commits that respond to usage problems" },
+            { "pt": "Documentação das permissões e das fronteiras de segurança de cada ferramenta", "en": "Documentation of the permissions and security boundaries of each tool" },
+            { "pt": "Registo de casos em que o modelo escolheu mal a ferramenta e das correções aplicadas", "en": "Record of cases where the model picked the wrong tool and the fixes applied" }
+          ]
+        }
+      },
+      "code_signals": [
+        "Tool definitions with name, description and input schema, bound to real implementations",
+        "MCP server exposing tools or resources with a configured transport",
+        "Loop that returns tool results to the model and handles tool errors",
+        "Argument validation before executing actions with side effects",
+        "Unit tests of tool functions, separate from the model"
+      ],
+      "documentation_signals": [
+        "Server README listing tools, examples and client configuration",
+        "Note on permissions and on what each tool can change",
+        "Record of cases where the model picked the wrong tool and what was changed"
+      ],
+      "learning_resource_types": ["official-documentation", "structured-course", "specification"],
+      "practical_evidence_examples": [
+        { "pt": "Construir um servidor MCP pequeno que exponha duas operações úteis para um dos projetos", "en": "Build a small MCP server that exposes two useful operations for one of the projects" },
+        { "pt": "Escrever testes às funções das ferramentas e uma matriz de permissões (ler contra alterar)", "en": "Write tests for the tool functions and a permissions matrix (read versus change)" },
+        { "pt": "Registar três situações em que o modelo escolheu mal a ferramenta e reescrever as descrições", "en": "Record three situations where the model picked the wrong tool and rewrite the descriptions" }
+      ]
+    },
+    {
+      "id": "agents-workflows",
+      "name_pt": "Agentes e Fluxos de Trabalho",
+      "name_en": "Agents & Workflows",
+      "description_pt": "Orquestrar vários passos com LLMs: fluxos determinísticos, agentes com ciclos de decisão, estado, memória e critérios de paragem.",
+      "description_en": "Orchestrating multi-step LLM work: deterministic workflows, agents with decision loops, state, memory and stop conditions.",
+      "levels": {
+        "1": {
+          "description_pt": "Existem artefactos de estudo ou experimento de fluxos multi-passo ou de agentes, sem integração numa aplicação.",
+          "description_en": "There are study or experiment artefacts of multi-step workflows or agents, not integrated into an application.",
+          "expected_evidence": [
+            { "pt": "Exemplo simples de agente com ferramentas ou de fluxo encadeado", "en": "Simple example of an agent with tools or of a chained workflow" },
+            { "pt": "Registo de conclusão de curso ou notas escritas sobre agentes e orquestração", "en": "Record of a completed course or written notes on agents and orchestration" },
+            { "pt": "Nota escrita que compara fluxo fixo e agente para um caso, com exemplo próprio", "en": "Written note comparing a fixed workflow and an agent for one case, with an own example" }
+          ]
+        },
+        "2": {
+          "description_pt": "Um fluxo multi-passo ou agente está implementado numa aplicação real, com estado explícito, critério de paragem e a escolha de desenho justificada por escrito.",
+          "description_en": "A multi-step workflow or agent is implemented in a real application, with explicit state, a stop condition and the design choice justified in writing.",
+          "expected_evidence": [
+            { "pt": "Fluxo com mais de um passo de LLM e decisões entre passos, em código de um projeto com finalidade própria", "en": "Workflow with more than one LLM step and decisions between steps, in the code of a project with its own purpose", "anchor": true },
+            { "pt": "Estado do fluxo representado explicitamente (e não só o histórico de mensagens)", "en": "Workflow state represented explicitly (not just the message history)" },
+            { "pt": "Limite de iterações ou de custo e condição de paragem no código", "en": "Iteration or cost limit and stop condition in the code" },
+            { "pt": "Justificação escrita da escolha entre agente e fluxo fixo", "en": "Written rationale for choosing an agent over a fixed workflow, or the reverse" }
+          ]
+        },
+        "3": {
+          "description_pt": "Além do nível 2, as falhas intermédias são tratadas, as execuções são reprodutíveis e as ações com efeito têm supervisão.",
+          "description_en": "Beyond level 2, intermediate failures are handled, runs are reproducible and actions with side effects are supervised.",
+          "expected_evidence": [
+            { "pt": "Tratamento de falha em passos intermédios (retomar, compensar ou abortar) no código", "en": "Handling of failures in intermediate steps (resume, compensate or abort) in the code" },
+            { "pt": "Registo de execuções que permite repetir ou reproduzir uma corrida", "en": "Run log that makes it possible to repeat or reproduce a run" },
+            { "pt": "Ponto de aprovação humana antes de ações com efeito", "en": "Human approval point before actions with side effects" },
+            { "pt": "Testes de cenários de ponta a ponta, incluindo casos de falha", "en": "End-to-end scenario tests, including failure cases" },
+            { "pt": "Desenho do fluxo documentado (diagrama ou descrição das transições)", "en": "Workflow design documented (diagram or description of the transitions)" }
+          ]
+        }
+      },
+      "code_signals": [
+        "Graph or state machine with nodes, transitions and typed state",
+        "Agent loop with a maximum iteration limit and a stop condition",
+        "Separation between deterministic steps and LLM steps",
+        "State persistence or resumption between steps",
+        "Explicit approval points before actions with side effects"
+      ],
+      "documentation_signals": [
+        "Diagram or description of the workflow and its transitions",
+        "Rationale for agent versus fixed workflow",
+        "Record of infinite loops, runaway costs or observed failures and their fixes"
+      ],
+      "learning_resource_types": ["structured-course", "technical-reading", "specification"],
+      "practical_evidence_examples": [
+        { "pt": "Refazer um fluxo existente como grafo com estado explícito e limite de iterações", "en": "Rebuild an existing flow as a graph with explicit state and an iteration limit" },
+        { "pt": "Adicionar um ponto de aprovação humana antes de uma ação com efeito e registar quando é acionado", "en": "Add a human approval point before an action with side effects and record when it is triggered" },
+        { "pt": "Comparar a versão agente com a versão fluxo fixo sobre as mesmas tarefas (custo e falhas)", "en": "Compare the agent version with the fixed-workflow version over the same tasks (cost and failures)" }
+      ]
+    },
+    {
+      "id": "evals-testing",
+      "name_pt": "Evals e Testes",
+      "name_en": "Evals & Testing",
+      "description_pt": "Medir de forma sistemática e repetível se o comportamento de uma aplicação com LLM é bom: testes tradicionais à volta do modelo e avaliação versionada das saídas.",
+      "description_en": "Measuring systematically and repeatably whether an LLM application behaves well: traditional tests around the model and versioned evaluation of outputs.",
+      "levels": {
+        "1": {
+          "description_pt": "Existem artefactos de estudo ou experimento de avaliação de saídas de LLM, sem dataset nem executor repetíveis.",
+          "description_en": "There are study or experiment artefacts of evaluating LLM outputs, without a repeatable dataset and runner.",
+          "expected_evidence": [
+            { "pt": "Pequeno conjunto de exemplos avaliado manualmente, com os resultados escritos", "en": "Small set of examples evaluated manually, with the results written down" },
+            { "pt": "Registo de conclusão de curso ou notas escritas sobre avaliação de LLMs", "en": "Record of a completed course or written notes on LLM evaluation" },
+            { "pt": "Nota escrita que distingue teste de software de avaliação de saídas de modelo, com exemplo próprio", "en": "Written note distinguishing software testing from model-output evaluation, with an own example" }
+          ]
+        },
+        "2": {
+          "description_pt": "Existe um dataset de avaliação e um executor repetível sobre uma aplicação real, com pelo menos uma métrica ou critério definido e justificado.",
+          "description_en": "There is an evaluation dataset and a repeatable runner over a real application, with at least one defined and justified metric or criterion.",
+          "expected_evidence": [
+            { "pt": "Dataset de casos com resultado esperado ou critérios, versionado no repositório", "en": "Dataset of cases with expected results or criteria, versioned in the repository", "anchor": true },
+            { "pt": "Runner que executa a aplicação sobre o dataset e grava os resultados", "en": "Runner that executes the application over the dataset and stores the results" },
+            { "pt": "Pelo menos uma métrica ou juiz definido com justificação escrita", "en": "At least one metric or judge defined with a written rationale" },
+            { "pt": "Um resultado de avaliação que levou a uma alteração (commit ou nota que o liga ao resultado)", "en": "An evaluation result that led to a change (a commit or note linking it to the result)" }
+          ]
+        },
+        "3": {
+          "description_pt": "Além do nível 2, existe um baseline versionado, execução automática e casos de regressão com origem registada.",
+          "description_en": "Beyond level 2, there is a versioned baseline, automatic execution and regression cases with a recorded origin.",
+          "expected_evidence": [
+            { "pt": "Baseline guardado e comparado a cada mudança relevante", "en": "Baseline stored and compared on each relevant change" },
+            { "pt": "Execução automática em CI ou rotina equivalente", "en": "Automatic execution in CI or an equivalent routine" },
+            { "pt": "Casos de regressão originados em falhas reais, com a origem registada", "en": "Regression cases derived from real failures, with the origin recorded" },
+            { "pt": "Resultados documentados com os limites da avaliação (variância, enviesamento do juiz)", "en": "Results documented with the limits of the evaluation (variance, judge bias)" },
+            { "pt": "Decisão de prompt ou de produto ligada a um resultado de eval", "en": "Prompt or product decision linked to an eval result" }
+          ]
+        }
+      },
+      "code_signals": [
+        "Versioned evaluation dataset directory with cases and criteria",
+        "Runner that executes the application over the dataset and stores results with date and version",
+        "LLM judge or metrics with explicit, tested prompts and criteria",
+        "CI workflow that runs the evaluation and compares with the baseline",
+        "Traditional tests for the deterministic parts alongside the evaluations"
+      ],
+      "documentation_signals": [
+        "Results report comparing versions",
+        "Description of how cases were chosen and what they do not cover",
+        "Record of regressions found and their fixes"
+      ],
+      "learning_resource_types": ["structured-course", "official-documentation", "technical-reading"],
+      "practical_evidence_examples": [
+        { "pt": "Criar um dataset de 30 casos reais para uma funcionalidade com LLM e um runner que gera um relatório", "en": "Create a dataset of 30 real cases for an LLM feature and a runner that produces a report" },
+        { "pt": "Registar um baseline, mudar o prompt e mostrar a diferença nos resultados", "en": "Record a baseline, change the prompt and show the difference in the results" },
+        { "pt": "Ligar o runner a um workflow de CI que falha quando uma métrica cai abaixo de um limite", "en": "Connect the runner to a CI workflow that fails when a metric drops below a threshold" }
+      ]
+    },
+    {
+      "id": "safety-guardrails",
+      "name_pt": "Segurança e Guardrails",
+      "name_en": "Safety & Guardrails",
+      "description_pt": "Proteger a aplicação e os utilizadores dos riscos específicos de LLMs: injeção de prompts, fuga de dados, ações indevidas, conteúdo inadequado e abuso de custo.",
+      "description_en": "Protecting the application and its users from LLM-specific risks: prompt injection, data leakage, unintended actions, inappropriate content and cost abuse.",
+      "levels": {
+        "1": {
+          "description_pt": "Existem artefactos de estudo ou de revisão sobre riscos específicos de LLMs, sem mitigações em código de aplicação.",
+          "description_en": "There are study or review artefacts about LLM-specific risks, without mitigations in application code.",
+          "expected_evidence": [
+            { "pt": "Registo de conclusão de curso ou notas escritas sobre riscos de aplicações com LLMs (injeção de prompts, fuga de dados, ações excessivas)", "en": "Record of a completed course or written notes on LLM application risks (prompt injection, data leakage, excessive agency)" },
+            { "pt": "Nota escrita que descreve um ataque de injeção e uma mitigação, com exemplo próprio", "en": "Written note describing an injection attack and a mitigation, with an own example" },
+            { "pt": "Revisão escrita de um projeto contra uma lista de riscos reconhecida", "en": "Written review of a project against a recognised list of risks" }
+          ]
+        },
+        "2": {
+          "description_pt": "Existem mitigações implementadas em código de aplicação, com os riscos tratados e as escolhas descritos por escrito.",
+          "description_en": "There are mitigations implemented in application code, with the risks addressed and the choices described in writing.",
+          "expected_evidence": [
+            { "pt": "Mitigação implementada em código de aplicação (por exemplo validação de entrada ou de saída, ou separação entre instruções e dados não confiáveis)", "en": "Mitigation implemented in application code (for example input or output validation, or separation between instructions and untrusted data)", "anchor": true },
+            { "pt": "Privilégios mínimos nas ferramentas ou confirmação antes de ações com efeito", "en": "Least privilege on tools or confirmation before actions with side effects" },
+            { "pt": "Limites de custo, de tamanho ou de taxa no código", "en": "Cost, size or rate limits in the code" },
+            { "pt": "Nota escrita que lista os riscos tratados e as mitigações escolhidas", "en": "Written note listing the risks addressed and the mitigations chosen" }
+          ]
+        },
+        "3": {
+          "description_pt": "Além do nível 2, existe um modelo de ameaças documentado e as mitigações são testadas de forma repetível.",
+          "description_en": "Beyond level 2, there is a documented threat model and the mitigations are tested repeatably.",
+          "expected_evidence": [
+            { "pt": "Modelo de ameaças documentado, com as mitigações e os testes correspondentes", "en": "Documented threat model, with the corresponding mitigations and tests" },
+            { "pt": "Testes adversariais repetíveis (injeções, pedidos fora de âmbito, fuga de dados)", "en": "Repeatable adversarial tests (injections, out-of-scope requests, data leakage)" },
+            { "pt": "Registos ou alertas para tentativas de abuso", "en": "Logs or alerts for abuse attempts" },
+            { "pt": "Gestão de segredos e de dados pessoais documentada", "en": "Documented management of secrets and personal data" },
+            { "pt": "Revisão posterior ao modelo de ameaças, com correções registadas", "en": "Review after the threat model, with corrections recorded" }
+          ]
+        }
+      },
+      "code_signals": [
+        "Input and output validation layer around LLM calls",
+        "Tools with least privilege and confirmation for destructive operations",
+        "Retrieved or user-supplied content treated as data, separate from instructions",
+        "Rate, size and cost limits per user or request",
+        "Tests with adversarial inputs"
+      ],
+      "documentation_signals": [
+        "Threat model or risk list with mitigations",
+        "Personal data and secrets policy",
+        "Record of incidents or near-misses and what changed"
+      ],
+      "learning_resource_types": ["reference-framework", "structured-course", "official-documentation"],
+      "practical_evidence_examples": [
+        { "pt": "Escrever um modelo de ameaças de uma página para um dos projetos com LLM", "en": "Write a one-page threat model for one of the LLM projects" },
+        { "pt": "Criar 15 testes adversariais (injeção, pedido fora de âmbito, fuga de dados) e corrê-los de forma repetível", "en": "Create 15 adversarial tests (injection, out-of-scope request, data leakage) and run them repeatably" },
+        { "pt": "Aplicar privilégios mínimos às ferramentas de um agente e confirmar que as ações destrutivas pedem aprovação", "en": "Apply least privilege to an agent's tools and confirm that destructive actions require approval" }
+      ]
+    },
+    {
+      "id": "observability-production",
+      "name_pt": "Observabilidade e IA em Produção",
+      "name_en": "Observability & Production AI",
+      "description_pt": "Operar aplicações com LLM: rastrear execuções, medir custo e latência, detetar degradação e diagnosticar falhas em produção.",
+      "description_en": "Operating LLM applications: tracing executions, measuring cost and latency, detecting degradation and diagnosing failures in production.",
+      "levels": {
+        "1": {
+          "description_pt": "Existem artefactos de estudo ou experimento de observabilidade de LLMs, sem instrumentação numa aplicação.",
+          "description_en": "There are study or experiment artefacts of LLM observability, without instrumentation in an application.",
+          "expected_evidence": [
+            { "pt": "Experimento com uma ferramenta de tracing num exemplo", "en": "Experiment with a tracing tool in an example" },
+            { "pt": "Registo de conclusão de curso ou notas escritas sobre observabilidade de LLMs", "en": "Record of a completed course or written notes on LLM observability" },
+            { "pt": "Nota escrita que descreve o que se observa numa execução (traço, custo, latência), com exemplo próprio", "en": "Written note describing what is observed in a run (trace, cost, latency), with an own example" }
+          ]
+        },
+        "2": {
+          "description_pt": "Uma aplicação implantada tem tracing ou registo estruturado por chamada ao LLM, com custo e latência visíveis e pelo menos um problema diagnosticado com esses dados.",
+          "description_en": "A deployed application has tracing or structured logging per LLM call, with cost and latency visible and at least one problem diagnosed with that data.",
+          "expected_evidence": [
+            { "pt": "Tracing ou registo estruturado por chamada ao LLM em código de uma aplicação com finalidade própria", "en": "Tracing or structured logging per LLM call in the code of an application with its own purpose", "anchor": true },
+            { "pt": "Custo e latência por funcionalidade registados ou visíveis num painel", "en": "Cost and latency per feature recorded or visible in a dashboard" },
+            { "pt": "Aplicação implantada (configuração de deploy e ambiente identificável)", "en": "Deployed application (deployment configuration and an identifiable environment)" },
+            { "pt": "Nota ou commit que mostra um problema diagnosticado com esses dados", "en": "Note or commit showing a problem diagnosed with that data" }
+          ]
+        },
+        "3": {
+          "description_pt": "Além do nível 2, existem verificações automáticas, ligação entre produção e avaliação, e operação documentada.",
+          "description_en": "Beyond level 2, there are automatic checks, a link between production and evaluation, and documented operation.",
+          "expected_evidence": [
+            { "pt": "Alertas ou verificações automáticas para custo, erros ou latência", "en": "Automatic alerts or checks for cost, errors or latency" },
+            { "pt": "Falhas observadas em produção convertidas em casos de um dataset de avaliação, com a origem registada", "en": "Failures observed in production converted into cases of an evaluation dataset, with the origin recorded" },
+            { "pt": "Runbook ou notas de operação", "en": "Runbook or operations notes" },
+            { "pt": "Pelo menos um incidente diagnosticado e documentado", "en": "At least one incident diagnosed and documented" },
+            { "pt": "Gestão de versões com possibilidade de rollback", "en": "Version management that allows rollback" }
+          ]
+        }
+      },
+      "code_signals": [
+        "Instrumentation (tracing, spans, correlation IDs) around LLM calls",
+        "Tokens, cost and latency logged per request",
+        "Deployment configuration, environment variables and health checks",
+        "Versioned dashboards, alerts or check scripts",
+        "CI/CD pipeline that deploys the application"
+      ],
+      "documentation_signals": [
+        "Runbook or operations notes",
+        "Incident report or post-mortem",
+        "Description of what is monitored and why"
+      ],
+      "learning_resource_types": ["structured-course", "official-documentation", "technical-reading"],
+      "practical_evidence_examples": [
+        { "pt": "Instrumentar um projeto com tracing e acompanhar custo e latência por funcionalidade durante uma semana", "en": "Instrument a project with tracing and track cost and latency per feature for a week" },
+        { "pt": "Transformar três falhas reais observadas em casos do dataset de avaliação", "en": "Turn three real observed failures into cases of the evaluation dataset" },
+        { "pt": "Escrever um runbook de uma página: o que verificar quando as respostas pioram", "en": "Write a one-page runbook: what to check when responses get worse" }
+      ]
+    },
+    {
+      "id": "ai-native-engineering",
+      "name_pt": "Engenharia de Software AI-Native",
+      "name_en": "AI-Native Software Engineering",
+      "description_pt": "Usar IA de forma deliberada ao longo do desenvolvimento (especificação, implementação, revisão, testes, documentação), com revisão humana, contexto de projeto mantido e qualidade verificada.",
+      "description_en": "Using AI deliberately across development (specification, implementation, review, testing, documentation), with human review, maintained project context and verified quality.",
+      "levels": {
+        "1": {
+          "description_pt": "Existem artefactos de estudo ou experimento sobre o uso de IA no desenvolvimento, sem prática recorrente em projetos.",
+          "description_en": "There are study or experiment artefacts about using AI in development, without recurring practice in projects.",
+          "expected_evidence": [
+            { "pt": "Registo de conclusão de curso ou notas escritas sobre IA no fluxo de desenvolvimento", "en": "Record of a completed course or written notes on AI in the development workflow" },
+            { "pt": "Notas escritas de experimentos com assistentes de código, incluindo o que falhou", "en": "Written notes from experiments with code assistants, including what failed" },
+            { "pt": "Nota escrita que descreve como verificar código gerado por IA (testes, revisão, segurança)", "en": "Written note describing how to verify AI-generated code (tests, review, security)" }
+          ]
+        },
+        "2": {
+          "description_pt": "Projetos reais têm um fluxo de trabalho com IA visível no repositório: contexto de projeto mantido, especificações prévias e revisão do código gerado.",
+          "description_en": "Real projects have an AI workflow visible in the repository: maintained project context, prior specifications and review of the generated code.",
+          "expected_evidence": [
+            { "pt": "Ficheiro de instruções ou de contexto para assistentes de código, com convenções do projeto, mantido ao longo de vários commits", "en": "Instruction or context file for code assistants, with project conventions, maintained across several commits", "anchor": true },
+            { "pt": "Especificações escritas antes da implementação de pelo menos uma funcionalidade", "en": "Specifications written before implementing at least one feature" },
+            { "pt": "Commits ou PRs identificados como assistidos por IA (por exemplo trailer de coautoria ou descrição do PR) acompanhados de testes ou revisão", "en": "Commits or PRs identified as AI-assisted (for example a co-author trailer or the PR description) accompanied by tests or review" },
+            { "pt": "Registo de pelo menos uma falha do assistente e da regra ou alteração que dela resultou", "en": "Record of at least one assistant failure and the rule or change that resulted from it" }
+          ]
+        },
+        "3": {
+          "description_pt": "Além do nível 2, a prática tem critérios de aceitação documentados, decisões registadas antes do código e reutilização entre projetos.",
+          "description_en": "Beyond level 2, the practice has documented acceptance criteria, decisions recorded before the code and reuse across projects.",
+          "expected_evidence": [
+            { "pt": "ADRs ou especificações datados antes do código a que se referem", "en": "ADRs or specifications dated before the code they refer to" },
+            { "pt": "Testes e revisão como critério de aceitação documentado e aplicado em PRs", "en": "Tests and review as a documented acceptance criterion applied in PRs" },
+            { "pt": "Verificação de segurança ou de licenças do código gerado documentada", "en": "Documented security or licence verification of generated code" },
+            { "pt": "Fluxo documentado e reutilizado em mais de um projeto", "en": "Workflow documented and reused in more than one project" },
+            { "pt": "Prática em projeto comercial registada manualmente de forma abstrata, sem identificar o cliente", "en": "Practice in a commercial project recorded manually in the abstract, without identifying the client" }
+          ]
+        }
+      },
+      "code_signals": [
+        "Instruction or context files for code assistants with real project conventions",
+        "Specs or ADRs directory that predates the implementation",
+        "Git history with small, reviewed PRs and tests alongside generated code",
+        "Reusable hooks, commands or skills for repeated tasks",
+        "CI that validates code regardless of who wrote it"
+      ],
+      "documentation_signals": [
+        "Description of the AI workflow and review rules",
+        "Record of assistant failures and lessons",
+        "Specs and ADRs linked to commits"
+      ],
+      "learning_resource_types": ["structured-course", "official-documentation", "technical-reading"],
+      "practical_evidence_examples": [
+        { "pt": "Escrever um ficheiro de contexto para um projeto e verificar se reduz correções repetidas", "en": "Write a context file for a project and check whether it reduces repeated corrections" },
+        { "pt": "Implementar uma funcionalidade com especificação prévia, testes e PR revisto, e documentar o processo", "en": "Implement a feature with a prior specification, tests and a reviewed PR, and document the process" },
+        { "pt": "Registar durante duas semanas onde o assistente falhou e transformar isso em regras do projeto", "en": "Record for two weeks where the assistant failed and turn that into project rules" }
+      ]
+    }
+  ]
+}

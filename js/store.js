@@ -4,6 +4,7 @@ export const S = { loaded: false, error: null, competencies: [], analyses: [], c
 const listeners = new Set();
 export const subscribe = (fn) => { listeners.add(fn); return () => listeners.delete(fn); };
 const emit = () => listeners.forEach((fn) => fn());
+export const notify = emit;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const MAX_HISTORY = 60;
 

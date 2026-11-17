@@ -6,14 +6,14 @@
      de rede primeiro: uma análise nova aparece logo que há ligação; sem ligação vê-se a última guardada.
    Para forçar atualização: mudar VERSION. Só apaga caches com os prefixos "roadmap-ia-" e "lj-"
    (a origem github.io é partilhada com o portfólio e outros projetos). */
-var VERSION = "3.0.0";
+var VERSION = "3.1.0";
 var CACHE = "lj-v" + VERSION;
 var SHELL = [
   "./", "index.html", "manifest.webmanifest",
   "css/app.css?v=" + VERSION, "js/app.js?v=" + VERSION,
-  "js/config.js", "js/dom.js", "js/i18n.js", "js/store.js",
+  "js/config.js", "js/dom.js", "js/i18n.js", "js/store.js", "js/auth.js", "js/advisor.js", "js/theme.js", "js/theme-init.js?v=" + VERSION,
   "js/locales/pt-PT.js", "js/locales/en-GB.js",
-  "js/ui/common.js", "js/ui/evidence.js", "js/ui/journey.js", "js/ui/now.js", "js/ui/skills.js",
+  "js/ui/advisor.js", "js/ui/common.js", "js/ui/evidence.js", "js/ui/journey.js", "js/ui/now.js", "js/ui/skills.js",
   "data/competencias.json", "data/cursos-feitos.json", "data/analises/latest.json",
   "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"
 ];

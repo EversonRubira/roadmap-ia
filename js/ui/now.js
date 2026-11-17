@@ -2,6 +2,7 @@ import { h } from "../dom.js";
 import { t, getLang, formatDate } from "../i18n.js";
 import * as store from "../store.js";
 import { L, compName } from "./common.js";
+import { renderAdvisor } from "./advisor.js";
 
 export function renderNow() {
   const a = store.latest();
@@ -20,5 +21,6 @@ export function renderNow() {
     h("details", { class: "more" }, h("summary", {}, t("now.whyWhere")), h("p", { class: "hint" }, L(act.where.reason))),
     f.why_not_others ? h("details", { class: "more" }, h("summary", {}, t("now.whyNotOthers")), h("p", { class: "hint" }, L(f.why_not_others))) : null,
     h("p", { class: "hint" }, L(act.then)),
-    h("p", { class: "meta" }, t("now.asOf", { date: formatDate(a.date) })));
+    h("p", { class: "meta" }, t("now.asOf", { date: formatDate(a.date) })),
+    renderAdvisor());
 }

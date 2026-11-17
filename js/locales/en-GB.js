@@ -38,5 +38,25 @@ export default {
   "journey.nextAction": "Next action", "journey.did": "Action from the previous analysis", "journey.changed": "Changed",
   "journey.noChange": "No level changes since the previous analysis.",
   "journey.start": "Starting point.",
-  "journey.waiting": "After you produce the evidence, ask Claude for a new analysis. This is where you will see what changed."
+  "journey.waiting": "After you produce the evidence, ask Claude for a new analysis. This is where you will see what changed.",
+
+  "theme.label": "Theme", "theme.system": "System", "theme.light": "Light", "theme.dark": "Dark",
+  "lang.pt-PT": "Portuguese", "lang.en-GB": "English",
+
+  "advisor.eyebrow": "Learning Advisor",
+  "advisor.basis": "Analysis based on the studies and history recorded. Project analysis will be added later.",
+  "advisor.run": "Analyse my path", "advisor.running": "Analysing your journey…", "advisor.done": "New recommendation saved.",
+  "advisor.empty": "No advisor recommendations yet. The repository analysis above remains the starting context.",
+  "advisor.why": "Why this recommendation?", "advisor.skills": "To develop",
+  "advisor.when": "Recommendation of {date}.", "advisor.otherLang": "Generated in {lang}; request a new analysis to get it in this language.",
+  "advisor.signin": "Sign in", "advisor.signinHint": "The advisor only answers the owner. Sign in to request an analysis.",
+  "advisor.email": "Email", "advisor.password": "Password", "advisor.signinBtn": "Sign in", "advisor.signout": "Sign out ({email})",
+  "advisor.err.login": "Incorrect email or password.",
+  "advisor.err.session": "Your session ended. Sign in again.",
+  "advisor.err.forbidden": "This account is not allowed to use the advisor.",
+  "advisor.err.tooSoon": "Wait {s} seconds before requesting another analysis.",
+  "advisor.err.daily": "You reached the daily analysis limit. Try again tomorrow.",
+  "advisor.err.network": "Offline. Try again when you are online.",
+  "advisor.err.provider": "The advisor did not respond well this time. Try again shortly.",
+  "advisor.err.generic": "The analysis could not be completed. Try again."
 };

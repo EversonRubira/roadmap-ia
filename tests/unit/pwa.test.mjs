@@ -41,5 +41,17 @@ test("rotas e caminhos são relativos (GitHub Pages em /roadmap-ia/)", () => {
 
 test("service worker: dados no shell existem e o app só lê (sem escrita a servidores)", () => {
   for (const f of ["data/competencias.json", "data/cursos-feitos.json", "data/analises/latest.json"]) { assert.ok(shell.includes(f), f); assert.ok(existsSync(f), f); }
-  for (const f of walk("js").filter((x) => x.endsWith(".js"))) assert.ok(!/method:\s*"(POST|PUT|PATCH|DELETE)"/.test(readFileSync(f, "utf8")), `${f} escreve`);
+  const WRITERS = new Set(["js/auth.js", "js/advisor.js"]);   // só login e pedido de análise escrevem
+  for (const f of walk("js").filter((x) => x.endsWith(".js") && !WRITERS.has(x))) assert.ok(!/method:\s*"(POST|PUT|PATCH|DELETE)"/.test(readFileSync(f, "utf8")), `${f} escreve`);
+});
+
+test("CSP deixa ligar apenas à própria origem e ao projeto Supabase configurado", () => {
+  const html = readFileSync("index.html", "utf8");
+  const csp = html.match(/Content-Security-Policy" content="([^"]+)"/)[1];
+  const url = readFileSync("js/config.js", "utf8").match(/SUPABASE_URL: "([^"]*)"/)[1];
+  const connect = csp.match(/connect-src ([^;]+)/)[1].split(" ");
+  assert.ok(connect.includes("'self'"));
+  if (url) assert.ok(connect.includes(new URL(url).origin), "connect-src sem o URL do Supabase");
+  else assert.deepEqual(connect, ["'self'"]);
+  assert.ok(!connect.some((c) => /groq/i.test(c)), "o browser nunca fala com a Groq");
 });

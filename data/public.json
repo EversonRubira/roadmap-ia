@@ -24,5 +24,153 @@
     "now": "I am moving from conceptual knowledge into hands-on retrieval and RAG, with measurable implementation and evaluation.",
     "advisor": "Current experience already shows LLM integration, structured outputs, safety and evals. Retrieval is the next relevant opportunity because there is still little practical evidence in this area.",
     "next": "Build and evaluate a small retrieval system with verifiable sources."
-  }
+  },
+  "skills": [
+    {
+      "id": "llm-integration",
+      "level": "consolidated",
+      "name": {
+        "pt": "Integração com LLMs",
+        "en": "LLM Integration"
+      },
+      "what": {
+        "pt": "Chamar modelos de linguagem a partir de aplicações de forma fiável: tratamento de erros, limites, custo e escolha de modelo.",
+        "en": "Calling language models from applications reliably: error handling, limits, cost and model choice."
+      },
+      "evidence": [
+        {
+          "pt": "Máximo de 2 tentativas, timeout de 30 s e degradação controlada (TRIAGE FAILED).",
+          "en": "At most 2 attempts, 30 s timeout and controlled degradation (TRIAGE FAILED)."
+        },
+        {
+          "pt": "Testes do cliente com timeout e nova tentativa, provider simulado sem rede, chave só no passo do triage.",
+          "en": "Client tests for timeout and retry, simulated provider without network, key used only in the triage step."
+        }
+      ],
+      "repo": "https://github.com/EversonRubira/TrackCargo/tree/main/docs/ai-test-triage"
+    },
+    {
+      "id": "structured-outputs",
+      "level": "consolidated",
+      "name": {
+        "pt": "Saídas Estruturadas",
+        "en": "Structured Outputs"
+      },
+      "what": {
+        "pt": "Obter do modelo dados que cumprem um contrato (JSON ou esquema) e validá-los antes de os usar no resto do sistema.",
+        "en": "Getting data from the model that meets a contract (JSON or schema) and validating it before it is used in the rest of the system."
+      },
+      "evidence": [
+        {
+          "pt": "Validação antes de usar a resposta e ramo explícito para resposta inválida.",
+          "en": "Validation before the response is used and an explicit branch for an invalid response."
+        },
+        {
+          "pt": "Estratégia documentada: nova tentativa perante saída inválida e falha com a evidência preservada.",
+          "en": "Documented strategy: retry on invalid output and failure with the evidence preserved."
+        }
+      ],
+      "repo": "https://github.com/EversonRubira/TrackCargo/tree/main/docs/ai-test-triage"
+    },
+    {
+      "id": "safety-guardrails",
+      "level": "consolidated",
+      "name": {
+        "pt": "Segurança e Guardrails",
+        "en": "Safety & Guardrails"
+      },
+      "what": {
+        "pt": "Proteger a aplicação e os utilizadores dos riscos específicos de LLMs: injeção de prompts, fuga de dados, ações indevidas, conteúdo inadequado e abuso de custo.",
+        "en": "Protecting the application and its users from LLM-specific risks: prompt injection, data leakage, unintended actions, inappropriate content and cost abuse."
+      },
+      "evidence": [
+        {
+          "pt": "Filtro de segredos obrigatório, bloco de dados não confiáveis, chave só no passo do triage e workflow sem pull_request_target.",
+          "en": "Mandatory secret filter, untrusted-data block, key used only in the triage step and a workflow without pull_request_target."
+        },
+        {
+          "pt": "Testes repetíveis de injeção de texto e caso real do baseline a passar.",
+          "en": "Repeatable text-injection tests and a real baseline case passing."
+        }
+      ],
+      "repo": "https://github.com/EversonRubira/TrackCargo/tree/main/docs/ai-test-triage"
+    },
+    {
+      "id": "prompt-context-engineering",
+      "level": "applied",
+      "name": {
+        "pt": "Prompt e Engenharia de Contexto",
+        "en": "Prompt & Context Engineering"
+      },
+      "what": {
+        "pt": "Desenhar as instruções e o contexto entregues ao modelo (o que entra, em que ordem, com que orçamento de tokens) de forma deliberada e versionada.",
+        "en": "Designing the instructions and context given to the model (what goes in, in what order, within what token budget) deliberately and under version control."
+      },
+      "evidence": [
+        {
+          "pt": "Prompt com bloco de dados não confiáveis e construção de contexto que declara o que ficou de fora.",
+          "en": "Prompt with an untrusted-data block and context assembly that declares what was left out."
+        }
+      ],
+      "repo": "https://github.com/EversonRubira/TrackCargo/tree/main/docs/ai-test-triage"
+    },
+    {
+      "id": "evals-testing",
+      "level": "applied",
+      "name": {
+        "pt": "Evals e Testes",
+        "en": "Evals & Testing"
+      },
+      "what": {
+        "pt": "Medir de forma sistemática e repetível se o comportamento de uma aplicação com LLM é bom: testes tradicionais à volta do modelo e avaliação versionada das saídas.",
+        "en": "Measuring systematically and repeatably whether an LLM application behaves well: traditional tests around the model and versioned evaluation of outputs."
+      },
+      "evidence": [
+        {
+          "pt": "Dataset versionado de 10 casos.",
+          "en": "Versioned dataset of 10 cases."
+        },
+        {
+          "pt": "Runner, resultados guardados, critério automático e limitações declaradas (uma execução por caso).",
+          "en": "Runner, stored results, automatic criterion and declared limitations (one run per case)."
+        }
+      ],
+      "repo": "https://github.com/EversonRubira/TrackCargo/tree/main/docs/ai-test-triage"
+    },
+    {
+      "id": "observability-production",
+      "level": "applied",
+      "name": {
+        "pt": "Observabilidade e IA em Produção",
+        "en": "Observability & Production AI"
+      },
+      "what": {
+        "pt": "Operar aplicações com LLM: rastrear execuções, medir custo e latência, detetar degradação e diagnosticar falhas em produção.",
+        "en": "Operating LLM applications: tracing executions, measuring cost and latency, detecting degradation and diagnosing failures in production."
+      },
+      "evidence": [
+        {
+          "pt": "Métricas por chamada (latência, tokens, custo) medidas pelo pipeline.",
+          "en": "Per-call metrics (latency, tokens, cost) measured by the pipeline."
+        }
+      ],
+      "repo": "https://github.com/EversonRubira/TrackCargo/tree/main/docs/ai-test-triage"
+    }
+  ],
+  "next": [
+    {
+      "id": "tool-use-mcp",
+      "name": {
+        "pt": "Tool Use e MCP",
+        "en": "Tool Use & MCP"
+      }
+    },
+    {
+      "id": "agents-workflows",
+      "name": {
+        "pt": "Agentes e Fluxos de Trabalho",
+        "en": "Agents & Workflows"
+      }
+    }
+  ]
 }

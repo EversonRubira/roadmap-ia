@@ -7,6 +7,7 @@ import { renderNow } from "./ui/now.js";
 import { renderSkills } from "./ui/skills.js";
 import { renderEvidence } from "./ui/evidence.js";
 import { renderJourney } from "./ui/journey.js";
+import { THEMES, getTheme, setTheme, applyTheme } from "./theme.js";
 
 const ROUTES = { now: renderNow, skills: renderSkills, evidence: renderEvidence, journey: renderJourney };
 const view = $("#view");
@@ -19,6 +20,11 @@ function chrome() {
   $("#btn-lang").textContent = getLang() === "pt-PT" ? "EN" : "PT";
   $("#btn-lang").setAttribute("aria-label", t("lang.switch"));
   $(".skip").textContent = t("a11y.skip");
+  const sel = $("#sel-theme");
+  sel.setAttribute("aria-label", t("theme.label"));
+  if (sel.options.length !== THEMES.length) THEMES.forEach((m) => sel.add(new Option("", m)));
+  [...sel.options].forEach((o) => { o.textContent = t(`theme.${o.value}`); });
+  sel.value = getTheme();
   $("#nav").setAttribute("aria-label", t("nav.label"));
   document.querySelectorAll("[data-nav]").forEach((el) => { el.textContent = t(`nav.${el.dataset.nav}`); });
   const r = route();
@@ -51,8 +57,10 @@ onLangChange(() => render(true));
 window.addEventListener("hashchange", () => render(false, true));
 window.addEventListener("online", () => { banner(); store.loadAll(); });
 window.addEventListener("offline", () => { banner(); announce(t("banner.offline")); });
+$("#sel-theme").addEventListener("change", (e) => setTheme(e.target.value));
 $("#btn-lang").addEventListener("click", () => setLang(getLang() === "pt-PT" ? "en-GB" : "pt-PT"));
 
+applyTheme();
 setLang(getLang(), { persist: false });
 render(true);
 store.loadAll();

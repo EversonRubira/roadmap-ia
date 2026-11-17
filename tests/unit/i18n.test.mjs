@@ -32,7 +32,10 @@ test("sem travessões nos textos", () => {
   for (const d of [pt, en]) for (const [k, v] of Object.entries(d)) assert.ok(!v.includes("—"), k);
 });
 
-test("sem fornecedores abandonados no código (Supabase, Edge Functions, Anthropic API)", () => {
+test("segredos nunca chegam ao browser: sem chave da Groq, service role nem Anthropic API", () => {
   const code = [...walk("js"), "index.html", "sw.js", "manifest.webmanifest"].map((f) => readFileSync(f, "utf8")).join("\n");
-  assert.ok(!/supabase|edge function|ANTHROPIC_API_KEY|service_role/i.test(code));
+  assert.ok(!/GROQ_API_KEY|api\.groq\.com|service_role|ANTHROPIC_API_KEY|gsk_/i.test(code));
+  const cfg = readFileSync("js/config.js", "utf8");
+  const key = cfg.match(/SUPABASE_KEY: "([^"]*)"/)[1];
+  assert.ok(key === "" || /^sb_publishable_/.test(key), "só a chave publicável pode estar no config");
 });

@@ -173,6 +173,113 @@ const navDesk = await d.$eval("#nav", (n) => getComputedStyle(n).position);
 ok(navDesk === "fixed", "desktop: navegação lateral");
 await desk.close();
 
+console.log("12. Seletor de tema (Sistema / Claro / Escuro)");
+{
+  const c = await newCtx({ colorScheme: "dark" });
+  const p = await c.newPage(); await p.goto(BASE); await p.waitForSelector("#nav:not([hidden])");
+  const bgOf = () => p.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  const opts = await p.$$eval("#sel-theme option", (o) => o.map((x) => x.textContent));
+  ok(JSON.stringify(opts) === JSON.stringify(["Sistema", "Claro", "Escuro"]), "opções PT: Sistema, Claro, Escuro", JSON.stringify(opts));
+  ok(await p.$eval("#sel-theme", (e) => e.value) === "system" && (await bgOf()) === "rgb(14, 19, 23)", "por omissão segue o sistema (escuro)");
+  await p.selectOption("#sel-theme", "light"); await p.waitForTimeout(60);
+  ok((await bgOf()) === "rgb(246, 244, 239)", "Claro força o tema claro mesmo com o sistema escuro", await bgOf());
+  await p.screenshot({ path: join(SHOTS, "now-mobile-pt-forced-light.png") });
+  await p.reload(); await p.waitForSelector("#nav:not([hidden])");
+  ok((await bgOf()) === "rgb(246, 244, 239)" && await p.$eval("#sel-theme", (e) => e.value) === "light", "a escolha persiste depois de recarregar");
+  await p.selectOption("#sel-theme", "dark"); await p.waitForTimeout(60);
+  ok((await bgOf()) === "rgb(14, 19, 23)", "Escuro força o tema escuro");
+  await p.selectOption("#sel-theme", "system"); await p.waitForTimeout(60);
+  ok(!(await p.evaluate(() => document.documentElement.hasAttribute("data-theme"))) && !(await p.evaluate(() => Object.keys(localStorage).includes("lj-theme"))), "Sistema remove a preferência");
+  await p.click("#btn-lang"); await p.waitForTimeout(60);
+  ok(JSON.stringify(await p.$$eval("#sel-theme option", (o) => o.map((x) => x.textContent))) === JSON.stringify(["System", "Light", "Dark"]), "opções EN: System, Light, Dark");
+  await c.close();
+}
+
+console.log("13. Learning Advisor (Supabase simulado)");
+{
+  const SB = "https://lj-test.supabase.co";
+  const c = await newCtx();
+  const calls = { analyse: 0, login: 0, auth: [] };
+  let latestRow = null, mode = "ok";
+  const analysis = (lang, text) => ({ id: "a1", lang, basis: "studies_history", model: "openai/gpt-oss-120b", created_at: "2026-11-17T12:00:00Z", result: { current_focus: "retrieval-rag", reason: "Falta evidência de retrieval e há um curso concluído sem aplicação.", next_action: text, action_type: "APPLY", skills_to_learn: ["embeddings", "chunking"], expected_evidence: ["20 queries", "recall@3"], public_summary: "A aprofundar retrieval.", updated_at: "2026-11-17T12:00:00Z" } });
+  // config e CSP de teste: ligam a app ao "Supabase" falso
+  await c.route("**/js/config.js**", (r) => r.fulfill({ status: 200, contentType: "text/javascript", body: `export const CONFIG = { APP_VERSION: "3.1.0", SUPABASE_URL: "${SB}", SUPABASE_KEY: "sb_publishable_test" }; export const advisorEnabled = () => true;` }));
+  await c.route(BASE + "index.html", async (r) => { const res = await r.fetch(); r.fulfill({ response: res, body: (await res.text()).replace("connect-src 'self'", `connect-src 'self' ${SB}`) }); });
+  await c.route(BASE, async (r) => { const res = await r.fetch(); r.fulfill({ response: res, body: (await res.text()).replace("connect-src 'self'", `connect-src 'self' ${SB}`) }); });
+  await c.route(`${SB}/**`, async (r) => {
+    const u = new URL(r.request().url()), h = r.request().headers(), j = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*", "Content-Type": "application/json" };
+    if (r.request().method() === "OPTIONS") return r.fulfill({ status: 204, headers: j });
+    if (u.pathname === "/auth/v1/token") {
+      calls.login++; const b = JSON.parse(r.request().postData());
+      if (b.password !== "certa") return r.fulfill({ status: 400, headers: j, body: JSON.stringify({ error: "invalid_grant" }) });
+      return r.fulfill({ status: 200, headers: j, body: JSON.stringify({ access_token: "jwt-1", refresh_token: "r-1", expires_in: 3600, user: { email: b.email } }) });
+    }
+    if (u.pathname === "/auth/v1/logout") return r.fulfill({ status: 204, headers: j });
+    calls.auth.push(h.authorization);
+    if (u.pathname === "/rest/v1/analyses") return r.fulfill({ status: 200, headers: j, body: JSON.stringify(latestRow ? [latestRow] : []) });
+    if (u.pathname === "/functions/v1/analyse") {
+      calls.analyse++;
+      if (mode === "soon") return r.fulfill({ status: 429, headers: { ...j, "Retry-After": "42" }, body: JSON.stringify({ error: "too_soon", retry_after: 42 }) });
+      if (mode === "provider") return r.fulfill({ status: 502, headers: j, body: JSON.stringify({ error: "invalid_response" }) });
+      await new Promise((x) => setTimeout(x, 400));
+      const lang = JSON.parse(r.request().postData()).lang;
+      latestRow = analysis(lang, lang === "pt-PT" ? "Construir um laboratório pequeno de retrieval." : "Build a small retrieval lab.");
+      return r.fulfill({ status: 200, headers: j, body: JSON.stringify({ analysis: latestRow }) });
+    }
+    r.fulfill({ status: 404, headers: j, body: "{}" });
+  });
+  const p = await c.newPage();
+  const errs = []; p.on("pageerror", (e) => errs.push(String(e))); p.on("console", (m) => { if (m.type() === "error") errs.push(m.text()); });
+  await p.goto(BASE); await p.waitForSelector("#nav:not([hidden])");
+  let t = await text(p);
+  ok(/Learning Advisor/i.test(t) && /Análise baseada nos estudos e histórico registados\. A análise dos projetos será adicionada posteriormente\./.test(t), "mostra o aviso: baseada em estudos e histórico, projetos depois");
+  ok(/Retrieval e RAG/.test(t) && /Construir um pequeno laboratório independente/.test(t), "a análise real dos repositórios continua visível e intacta");
+  ok(calls.analyse === 0 && calls.auth.length === 0, "sem sessão: nenhum pedido ao advisor nem à base de dados");
+  ok(!(await p.$("button.btn.primary")), "sem sessão: não há botão de análise");
+  await p.screenshot({ path: join(SHOTS, "now-mobile-pt-signed-out.png"), fullPage: true });
+
+  await p.fill("#lj-email", "eu@exemplo.pt"); await p.fill("#lj-pass", "errada"); await p.click("form.login button[type=submit]"); await p.waitForTimeout(150);
+  ok(/Email ou palavra-passe incorretos/.test(await text(p)) && calls.analyse === 0, "login errado mostra erro e não chama o advisor");
+  await p.fill("#lj-pass", "certa"); await p.click("form.login button[type=submit]");
+  await p.waitForSelector("button.btn.primary");
+  t = await text(p);
+  ok(/Analisar o meu caminho/.test(t) && /Sair \(eu@exemplo\.pt\)/.test(t), "depois do login aparece o botão e o email");
+  ok(/Ainda sem recomendações do advisor/.test(t), "sem recomendações guardadas: estado vazio");
+  ok(calls.analyse === 0, "a análise não corre sozinha ao abrir ou entrar");
+  ok(await p.evaluate(() => { const s = JSON.parse(localStorage.getItem("lj-session")); return !!s.access_token && !/groq|gsk_/i.test(JSON.stringify(localStorage)); }), "sessão normal guardada, sem token de administração nem chave Groq");
+
+  await p.click("button.btn.primary"); await p.waitForTimeout(120);
+  ok(/A analisar o teu percurso/.test(await text(p)) && await p.$eval("button.btn.primary", (b) => b.disabled && b.getAttribute("aria-busy") === "true"), "durante a análise: A analisar o teu percurso… (botão desativado)");
+  await p.screenshot({ path: join(SHOTS, "now-mobile-pt-analysing.png"), fullPage: true });
+  await p.waitForFunction(() => /Construir um laboratório pequeno de retrieval/.test(document.body.innerText));
+  t = await text(p);
+  ok(calls.analyse === 1 && calls.auth.every((a) => a === "Bearer jwt-1"), "um único pedido, sempre com a sessão do proprietário");
+  ok(/APLICAR|Aplicar/.test(t) && /recall@3/.test(t) && /embeddings/.test(t), "mostra tipo, evidência esperada e competências a desenvolver");
+  ok(/Porquê esta recomendação\?/.test(t) && !/Falta evidência de retrieval/.test(t), "motivo escondido por baixo de 'Porquê esta recomendação?'");
+  await p.click("details.more >> nth=-1"); await p.waitForTimeout(60);
+  ok(/Falta evidência de retrieval/.test(await text(p)), "motivo visível ao abrir");
+  await p.screenshot({ path: join(SHOTS, "now-mobile-pt-advisor.png"), fullPage: true });
+
+  await p.click("#btn-lang"); await p.waitForTimeout(80);
+  t = await text(p);
+  ok(/Generated in Portuguese/.test(t) && /Analysis based on the studies and history recorded\. Project analysis will be added later\./.test(t), "EN: aviso e nota de idioma da recomendação");
+  await p.screenshot({ path: join(SHOTS, "now-mobile-en-advisor.png"), fullPage: true });
+  await p.click("button.btn.primary"); await p.waitForFunction(() => /Build a small retrieval lab/.test(document.body.innerText));
+  ok(true, "EN: nova análise pedida em inglês, texto vem já em inglês");
+
+  mode = "soon"; await p.click("button.btn.primary"); await p.waitForSelector(".error");
+  ok(/Wait 42 seconds/.test(await text(p)), "limite por minuto: mostra os segundos de espera");
+  mode = "provider"; await p.click("button.btn.primary"); await p.waitForTimeout(200);
+  ok(/did not respond well/.test(await text(p)), "falha do fornecedor: mensagem clara, sem detalhes internos");
+
+  await p.reload(); await p.waitForSelector("button.btn.primary");
+  ok(/Build a small retrieval lab/.test(await text(p)), "a recomendação guardada reaparece depois de recarregar");
+  await p.click("button.link"); await p.waitForSelector("form.login");
+  ok(!(await p.evaluate(() => localStorage.getItem("lj-session"))), "Sair apaga a sessão");
+  ok(errs.filter((e) => !/Failed to load resource|favicon/.test(e)).length === 0, "sem erros na consola", errs.join(" | "));
+  await c.close();
+}
+
 await browser.close(); server.close();
 console.log(`\n${pass} ok, ${fail} falhas`);
 process.exit(fail ? 1 : 0);

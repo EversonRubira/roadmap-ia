@@ -2,7 +2,7 @@
 // sem sessão do proprietário não dão acesso a nada (RLS). A chave da Groq NUNCA entra aqui: vive só na Edge Function.
 export const CONFIG = {
   APP_VERSION: "3.1.0",
-  SUPABASE_URL: "",
-  SUPABASE_KEY: "",
+  SUPABASE_URL: "https://tdjszxryaxbpdiqdzkua.supabase.co",
+  SUPABASE_KEY: "sb_publishable_pspPW9Jf4dCAEPyTV3oE5A_Oesl1-km",
 };
 export const advisorEnabled = () => Boolean(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_KEY);

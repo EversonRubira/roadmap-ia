@@ -1,0 +1,28 @@
+{
+  "updated": "2026-11-17",
+  "focus": "retrieval-rag",
+  "path": [
+    "llm-integration",
+    "prompt-context-engineering",
+    "structured-outputs",
+    "retrieval-rag",
+    "tool-use-mcp",
+    "agents-workflows",
+    "evals-testing",
+    "safety-guardrails",
+    "observability-production",
+    "ai-native-engineering"
+  ],
+  "pt": {
+    "focus": "Retrieval & RAG",
+    "now": "Estou a aprofundar sistemas de retrieval e RAG, passando da base conceptual para implementação e avaliação mensurável.",
+    "advisor": "A experiência atual já demonstra integração com LLMs, structured outputs, safety e evals. Retrieval é a próxima oportunidade relevante porque ainda há pouca evidência prática nesta área.",
+    "next": "Construir e avaliar um pequeno sistema de retrieval com fontes verificáveis."
+  },
+  "en": {
+    "focus": "Retrieval & RAG",
+    "now": "I am moving from conceptual knowledge into hands-on retrieval and RAG, with measurable implementation and evaluation.",
+    "advisor": "Current experience already shows LLM integration, structured outputs, safety and evals. Retrieval is the next relevant opportunity because there is still little practical evidence in this area.",
+    "next": "Build and evaluate a small retrieval system with verifiable sources."
+  }
+}

@@ -5,15 +5,15 @@ import { S } from "./store.js";
 import { announce } from "./ui/common.js";
 import { renderNow } from "./ui/now.js";
 import { renderSkills } from "./ui/skills.js";
-import { renderEvidence } from "./ui/evidence.js";
 import { renderJourney } from "./ui/journey.js";
 import { THEMES, getTheme, setTheme, applyTheme } from "./theme.js";
 
-const ROUTES = { now: renderNow, skills: renderSkills, evidence: renderEvidence, journey: renderJourney };
+const ROUTES = { now: renderNow, skills: renderSkills, journey: renderJourney };
+const ALIAS = { evidence: "skills" };   // links antigos para #/evidence abrem Competências, onde as evidências passaram a viver
 const view = $("#view");
 let lastKey = "";
 
-const route = () => { const n = location.hash.replace(/^#\/?/, "").split("/")[0]; return n in ROUTES ? n : "now"; };
+const route = () => { const n = location.hash.replace(/^#\/?/, "").split("/")[0]; const r = ALIAS[n] || n; return r in ROUTES ? r : "now"; };
 
 function chrome() {
   $("#app-context").textContent = t("app.context");

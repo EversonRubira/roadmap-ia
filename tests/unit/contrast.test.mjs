@@ -19,3 +19,14 @@ for (const [name, p] of [["claro", light], ["escuro", dark]]) {
     for (const [a, b] of UI) assert.ok(ratio(p[a], p[b]) >= 3, `${a} sobre ${b}: ${ratio(p[a], p[b]).toFixed(2)}`);
   });
 }
+
+// Barra de evolução: números sobre o segmento "Aplicado" (mistura 50 % de accent com surface) e sobre "Consolidado"
+const mix = (a, b) => "#" + [1, 3, 5].map((i) => Math.round((parseInt(a.slice(i, i + 2), 16) + parseInt(b.slice(i, i + 2), 16)) / 2).toString(16).padStart(2, "0")).join("");
+for (const [name, p] of [["claro", light], ["escuro", dark]]) {
+  test(`barra de evolução legível (${name})`, () => {
+    assert.ok(ratio(p.ink, mix(p.accent, p.surface)) >= 4.5, "ink sobre Aplicado");
+    assert.ok(ratio(p["accent-ink"], p.accent) >= 4.5, "texto sobre Consolidado");
+    assert.ok(ratio(p.ink, p["accent-soft"]) >= 4.5, "ink sobre Conhecimento");
+    assert.ok(ratio(p["ink-2"], p.bg) >= 3, "contorno da barra");
+  });
+}

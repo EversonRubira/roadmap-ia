@@ -234,7 +234,7 @@ console.log("13. Learning Advisor (Supabase simulado)");
   let latestRow = null, mode = "ok", atype = "APPLY";
   const analysis = (lang, text) => ({ id: "a1", lang, basis: "studies_history", model: "openai/gpt-oss-120b", created_at: "2026-11-17T12:00:00Z", result: { current_focus: "retrieval-rag", reason: "Falta evidência de retrieval e há um curso concluído sem aplicação.", next_action: text, action_type: atype, skills_to_learn: ["embeddings", "chunking"], expected_evidence: ["20 queries", "recall@3"], public_summary: "A aprofundar retrieval.", updated_at: "2026-11-17T12:00:00Z" } });
   // config e CSP de teste: ligam a app ao "Supabase" falso
-  await c.route("**/js/config.js**", (r) => r.fulfill({ status: 200, contentType: "text/javascript", body: `export const CONFIG = { APP_VERSION: "3.2.0", SUPABASE_URL: "${SB}", SUPABASE_KEY: "sb_publishable_test" }; export const advisorEnabled = () => true;` }));
+  await c.route("**/js/config.js**", (r) => r.fulfill({ status: 200, contentType: "text/javascript", body: `export const CONFIG = { APP_VERSION: "3.2.1", SUPABASE_URL: "${SB}", SUPABASE_KEY: "sb_publishable_test" }; export const advisorEnabled = () => true;` }));
   await c.route(BASE + "index.html", async (r) => { const res = await r.fetch(); r.fulfill({ response: res, body: (await res.text()).replace("connect-src 'self'", `connect-src 'self' ${SB}`) }); });
   await c.route(BASE, async (r) => { const res = await r.fetch(); r.fulfill({ response: res, body: (await res.text()).replace("connect-src 'self'", `connect-src 'self' ${SB}`) }); });
   await c.route(`${SB}/**`, async (r) => {

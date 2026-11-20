@@ -17,6 +17,8 @@ const route = () => { const n = location.hash.replace(/^#\/?/, "").split("/")[0]
 
 function chrome() {
   $("#app-context").textContent = t("app.context");
+  $("#lnk-home").textContent = t("nav.home");
+  $("#lnk-home").setAttribute("aria-label", t("nav.home.label"));
   $("#btn-lang").textContent = getLang() === "pt-PT" ? "EN" : "PT";
   $("#btn-lang").setAttribute("aria-label", t("lang.switch"));
   $(".skip").textContent = t("a11y.skip");

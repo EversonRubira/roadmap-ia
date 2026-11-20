@@ -5,6 +5,8 @@ export default {
   "a11y.skip": "Skip to content",
   "lang.switch": "Mudar para Português",
   "nav.label": "Main navigation",
+  "nav.home": "← Portfolio",
+  "nav.home.label": "Back to portfolio",
   "nav.now": "Now", "nav.skills": "Skills", "nav.journey": "Progression",
   "common.loading": "Loading…", "common.retry": "Try again",
   "banner.offline": "Offline. Showing the last saved data.",

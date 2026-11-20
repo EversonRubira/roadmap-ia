@@ -6,7 +6,7 @@
      de rede primeiro: uma análise nova aparece logo que há ligação; sem ligação vê-se a última guardada.
    Para forçar atualização: mudar VERSION. Só apaga caches com os prefixos "roadmap-ia-" e "lj-"
    (a origem github.io é partilhada com o portfólio e outros projetos). */
-var VERSION = "3.2.0";
+var VERSION = "3.2.1";
 var CACHE = "lj-v" + VERSION;
 var SHELL = [
   "./", "index.html", "manifest.webmanifest",

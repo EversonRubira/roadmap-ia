@@ -5,6 +5,8 @@ export default {
   "a11y.skip": "Saltar para o conteúdo",
   "lang.switch": "Mudar para English",
   "nav.label": "Navegação principal",
+  "nav.home": "← Portfólio",
+  "nav.home.label": "Voltar ao portfólio",
   "nav.now": "Agora", "nav.skills": "Competências", "nav.journey": "Evolução",
   "common.loading": "A carregar…", "common.retry": "Tentar novamente",
   "banner.offline": "Sem ligação. A mostrar os últimos dados guardados.",
